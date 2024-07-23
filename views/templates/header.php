@@ -20,7 +20,7 @@
     <a
       href="../views/paginas/contact_us.php"
       class="btn-contact"
-      style="background-color: #138535"
+      style="background-color: #F54670"
       >Contáctenos</a
     >
   </nav>
