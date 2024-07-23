@@ -291,3 +291,116 @@ BEGIN
 END;
 /
 
+--Procedimiento para agregar un huesped
+CREATE OR REPLACE PROCEDURE AGREGAR_HUESPED(
+    p_nombre IN Huespedes.Nombre%TYPE,
+    p_apellido IN Huespedes.Apellido%TYPE,
+    p_fecha_nacimiento IN Huespedes.FechaNacimiento%TYPE,
+    p_direccion IN Huespedes.Direccion%TYPE,
+    p_telefono IN Huespedes.Telefono%TYPE,
+    p_email IN Huespedes.Email%TYPE
+)
+IS
+BEGIN
+    INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email)
+    VALUES (Huespedes_SEQ.NEXTVAL, p_nombre, p_apellido, p_fecha_nacimiento, p_direccion, p_telefono, p_email);
+    DBMS_OUTPUT.PUT_LINE('Huésped agregado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END AGREGAR_HUESPED;
+
+BEGIN
+    AGREGAR_HUESPED('Carlos', 'Pérez', TO_DATE('1985-04-23', 'YYYY-MM-DD'), 'Calle Falsa 123', '123456789', 'carlos.perez@example.com');
+END;
+
+
+--Procedimeinto para actualizar el estado de una Reserva
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_ESTADO_RESERVA(
+    p_reservaID IN Reservas.ReservaID%TYPE,
+    p_estado IN Reservas.Estado%TYPE
+)
+IS
+BEGIN
+    UPDATE Reservas
+    SET Estado = p_estado
+    WHERE ReservaID = p_reservaID;
+    DBMS_OUTPUT.PUT_LINE('Estado de la reserva actualizado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ACTUALIZAR_ESTADO_RESERVA;
+
+
+--Procedimiento para registrar un nuevo mantenimento
+CREATE OR REPLACE PROCEDURE REGISTRAR_MANTENIMIENTO(
+    p_habitacionID IN Mantenimiento.HabitacionID%TYPE,
+    p_fecha_mantenimiento IN Mantenimiento.FechaMantenimiento%TYPE,
+    p_descripcion IN Mantenimiento.Descripcion%TYPE,
+    p_costo IN Mantenimiento.Costo%TYPE
+)
+IS
+BEGIN
+    INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo)
+    VALUES (Mantenimiento_SEQ.NEXTVAL, p_habitacionID, p_fecha_mantenimiento, p_descripcion, p_costo);
+    DBMS_OUTPUT.PUT_LINE('Mantenimiento registrado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END REGISTRAR_MANTENIMIENTO;
+
+
+BEGIN
+    REGISTRAR_MANTENIMIENTO(1, SYSDATE, 'Cambio de sábanas y limpieza', 50);
+END;
+
+--Procedimiento para agregar un nuevo servicio
+CREATE OR REPLACE PROCEDURE AGREGAR_SERVICIO(
+    p_nombre_servicio IN Servicios.NombreServicio%TYPE,
+    p_descripcion IN Servicios.Descripcion%TYPE,
+    p_precio IN Servicios.Precio%TYPE
+)
+IS
+BEGIN
+    INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio)
+    VALUES (Servicios_SEQ.NEXTVAL, p_nombre_servicio, p_descripcion, p_precio);
+    DBMS_OUTPUT.PUT_LINE('Servicio agregado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END AGREGAR_SERVICIO;
+
+BEGIN
+    AGREGAR_SERVICIO('Spa', 'Servicio de spa con masaje relajante', 100);
+END;
+
+
+--Procedimiento para listar los empleados contratados en despues de una fecha específica
+CREATE OR REPLACE PROCEDURE LISTA_EMPLEADOS_CONTRATADOS_DESPUES(
+    p_fecha IN DATE
+)
+IS
+BEGIN
+    FOR rec IN (SELECT Nombre, Apellido FROM Empleados WHERE FechaContratacion > p_fecha)
+    LOOP
+        DBMS_OUTPUT.PUT_LINE(rec.Nombre || ' ' || rec.Apellido);
+    END LOOP;
+END LISTA_EMPLEADOS_CONTRATADOS_DESPUES;
+
+
+--Actualizar la cantidad de inventario por habitacion
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_CANTIDAD_INVENTARIO(
+    p_habitacionID IN CantidadInventarioPorHabitacion.HabitacionID%TYPE,
+    p_inventarioID IN CantidadInventarioPorHabitacion.InventarioID%TYPE,
+    p_cantidad IN CantidadInventarioPorHabitacion.Cantidad%TYPE
+)
+IS
+BEGIN
+    UPDATE CantidadInventarioPorHabitacion
+    SET Cantidad = p_cantidad
+    WHERE HabitacionID = p_habitacionID AND InventarioID = p_inventarioID;
+    DBMS_OUTPUT.PUT_LINE('Cantidad de inventario actualizada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ACTUALIZAR_CANTIDAD_INVENTARIO;
