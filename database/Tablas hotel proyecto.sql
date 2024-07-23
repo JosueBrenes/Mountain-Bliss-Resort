@@ -177,3 +177,117 @@ JOIN
     Habitaciones HR ON CH.HabitacionID = HR.HabitacionID
 JOIN 
     Inventarios I ON CH.InventarioID = I.InventarioID;
+
+--PROCEDIMIENTOS
+-- calcular precio de la reserva
+
+CREATE OR REPLACE PROCEDURE CALCULAR_PRECIO_RESERVA (
+    p_reserva_id IN Reservas.ReservaID%TYPE,
+    p_costo_total OUT NUMBER
+) AS
+BEGIN
+    SELECT SUM(PrecioPorNoche * (FechaSalida - FechaEntrada))
+    INTO p_costo_total
+    FROM Reservas R
+    JOIN Habitaciones H ON R.HabitacionID = H.HabitacionID
+    WHERE R.ReservaID = p_reserva_id;
+END;
+/
+
+
+-- ver cuartos disponibles para una fecha esp.
+CREATE OR REPLACE PROCEDURE LISTAR_HABITACIONES_DISPONIBLES (
+    p_fecha_inicio IN DATE,
+    p_fecha_fin IN DATE
+) AS
+BEGIN
+    SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
+    FROM Habitaciones
+    WHERE HabitacionID NOT IN (
+        SELECT HabitacionID
+        FROM Reservas
+        WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
+           OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
+           OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
+           OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
+    )
+    AND Estado = 'Disponible';
+END;
+/
+
+
+-- ver info huesped por buscar id
+
+CREATE OR REPLACE PROCEDURE OBTENER_HUESPED_POR_RESERVA (
+    p_reserva_id IN Reservas.ReservaID%TYPE
+) AS
+BEGIN
+    SELECT HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    FROM Huespedes
+    WHERE HuespedID = (
+        SELECT HuespedID
+        FROM Reservas
+        WHERE ReservaID = p_reserva_id
+    );
+END;
+/
+
+
+-- cambiar de cuarto calcular precios
+
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_PRECIO_HABITACION (
+    p_tipo_habitacion IN Habitaciones.TipoHabitacion%TYPE,
+    p_nuevo_precio IN Habitaciones.PrecioPorNoche%TYPE
+) AS
+BEGIN
+    UPDATE Habitaciones
+    SET PrecioPorNoche = p_nuevo_precio
+    WHERE TipoHabitacion = p_tipo_habitacion;
+END;
+/
+
+
+-- actualizar precio habitacion por cambio de habitacion
+CREATE OR REPLACE PROCEDURE UPDATE_ROOM_PRICE (
+    ROOM_TYPE IN VARCHAR(50),
+    NEW_PRICE IN NUMBER
+) AS
+BEGIN
+    UPDATE ROOMS
+    SET PRICE_PER_NIGHT = NEW_PRICE
+    WHERE ROOM_TYPE = ROOM_TYPE;
+END;
+/
+
+-- agregar empleado con dbms
+CREATE OR REPLACE PROCEDURE AGREGAR_EMPLEADO(
+    p_nombre IN Empleados.Nombre%TYPE,
+    p_apellido IN Empleados.Apellido%TYPE,
+    p_puesto IN Empleados.Puesto%TYPE,
+    p_fecha_contratacion IN Empleados.FechaContratacion%TYPE,
+    p_salario IN Empleados.Salario%TYPE
+)
+IS
+BEGIN
+    INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario)
+    VALUES (Empleados_SEQ.NEXTVAL, p_nombre, p_apellido, p_puesto, p_fecha_contratacion, p_salario);
+    
+    DBMS_OUTPUT.PUT_LINE('Empleado agregado exitosamente!!');
+END;
+/
+
+-- agregar factura con dbms
+CREATE OR REPLACE PROCEDURE AGREGAR_FACTURA(
+    p_reserva_id IN Facturacion.ReservaID%TYPE,
+    p_fecha_factura IN Facturacion.FechaFactura%TYPE,
+    p_total IN Facturacion.Total%TYPE
+)
+IS
+BEGIN
+    INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
+    VALUES (Facturacion_SEQ.NEXTVAL, p_reserva_id, p_fecha_factura, p_total);
+    
+    DBMS_OUTPUT.PUT_LINE('Factura agregada exitosamente!!!!');
+END;
+/
+
