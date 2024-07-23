@@ -93,4 +93,87 @@ CREATE TABLE Proveedores (
 
 
 
+--VISTAS
 
+--PARA VER LAS RESERVACIONES ACTUALES
+CREATE VIEW VistaReservasActuales AS
+SELECT 
+    R.ReservaID,
+    H.Nombre || ' ' || H.Apellido AS NombreHuesped,
+    R.HabitacionID,
+    HR.NumeroHabitacion,
+    R.FechaEntrada,
+    R.FechaSalida,
+    R.Estado
+FROM 
+    Reservas R
+JOIN 
+    Huespedes H ON R.HuespedID = H.HuespedID
+JOIN 
+    Habitaciones HR ON R.HabitacionID = HR.HabitacionID
+WHERE 
+    R.Estado = 'Confirmada';
+
+
+--PARA VER LA FACTURA DETALLADA
+CREATE VIEW VistaFacturacionDetallada AS
+SELECT 
+    F.FacturaID,
+    F.ReservaID,
+    H.Nombre || ' ' || H.Apellido AS NombreHuesped,
+    R.HabitacionID,
+    HR.NumeroHabitacion,
+    F.FechaFactura,
+    F.Total
+FROM 
+    Facturacion F
+JOIN 
+    Reservas R ON F.ReservaID = R.ReservaID
+JOIN 
+    Huespedes H ON R.HuespedID = H.HuespedID
+JOIN 
+    Habitaciones HR ON R.HabitacionID = HR.HabitacionID;
+
+
+
+--PARA VER LAS HABITACIONES DSPONIBLES
+CREATE VIEW VistaDisponibilidadHabitaciones AS
+SELECT 
+    HabitacionID,
+    NumeroHabitacion,
+    TipoHabitacion,
+    PrecioPorNoche,
+    Estado
+FROM 
+    Habitaciones
+WHERE 
+    Estado = 'Disponible';
+
+--PARA VER EL MANTENIMIENTO DE LAS HABITACIONES
+CREATE VIEW VistaMantenimientoHabitaciones AS
+SELECT 
+    M.MantenimientoID,
+    M.HabitacionID,
+    HR.NumeroHabitacion,
+    M.FechaMantenimiento,
+    M.Descripcion,
+    M.Costo
+FROM 
+    Mantenimiento M
+JOIN 
+    Habitaciones HR ON M.HabitacionID = HR.HabitacionID;
+
+--PARA VER EL INVENTARIO POR HABITACION 
+CREATE VIEW VistaInventarioPorHabitacion AS
+SELECT 
+    CH.HabitacionID,
+    HR.NumeroHabitacion,
+    I.NombreProducto,
+    CH.Cantidad,
+    I.UnidadMedida
+FROM 
+    CantidadInventarioPorHabitacion CH
+JOIN 
+    Habitaciones HR ON CH.HabitacionID = HR.HabitacionID
+JOIN 
+    Inventarios I ON CH.InventarioID = I.InventarioID;
