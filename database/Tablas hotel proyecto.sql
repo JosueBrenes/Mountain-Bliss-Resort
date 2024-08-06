@@ -215,7 +215,34 @@ INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES
 
 
 --VISTAS
-
+CREATE VIEW Vista_Proveedores AS
+SELECT 
+    ProveedorID, 
+    Nombre, 
+    Direccion, 
+    Telefono, 
+    Email
+FROM 
+    Proveedores;
+/
+CREATE VIEW Vista_Facturacion AS
+SELECT 
+    FacturaID, 
+    ReservaID, 
+    FechaFactura, 
+    Total
+FROM 
+    Facturacion;
+/
+CREATE VIEW VistaPersonalHotel AS
+SELECT 
+    EmpleadoID,
+    Nombre,
+    Apellido,
+    Puesto
+FROM 
+    Empleados;
+/
 --PARA VER LAS RESERVACIONES ACTUALES
 CREATE VIEW VistaReservasActuales AS
 SELECT 
@@ -256,7 +283,7 @@ JOIN
     Habitaciones HR ON R.HabitacionID = HR.HabitacionID;
 
 
-
+/
 --PARA VER LAS HABITACIONES DSPONIBLES
 CREATE VIEW VistaDisponibilidadHabitaciones AS
 SELECT 
@@ -284,6 +311,7 @@ FROM
 JOIN 
     Habitaciones HR ON M.HabitacionID = HR.HabitacionID;
 
+/
 --PARA VER EL INVENTARIO POR HABITACION 
 CREATE VIEW VistaInventarioPorHabitacion AS
 SELECT 
@@ -298,6 +326,42 @@ JOIN
     Habitaciones HR ON CH.HabitacionID = HR.HabitacionID
 JOIN 
     Inventarios I ON CH.InventarioID = I.InventarioID;
+
+/
+
+
+-- Vista para ver la Ocupación por Tipo de Habitación
+CREATE VIEW VistaOcupacionPorTipoHabitacion AS
+SELECT 
+    HR.TipoHabitacion,
+    COUNT(R.ReservaID) AS ReservasTotales
+FROM 
+    Reservas R
+JOIN 
+    Habitaciones HR ON R.HabitacionID = HR.HabitacionID
+WHERE 
+    R.Estado = 'Confirmada'
+GROUP BY 
+    HR.TipoHabitacion;
+
+
+-- Vista para ver el Historial de Reservas de un Huesped
+CREATE VIEW VistaHistorialReservas AS
+SELECT 
+    H.HuespedID,
+    H.Nombre || ' ' || H.Apellido AS NombreHuesped,
+    R.ReservaID,
+    HR.NumeroHabitacion,
+    R.FechaEntrada,
+    R.FechaSalida,
+    R.Estado
+FROM 
+    Huespedes H
+JOIN 
+    Reservas R ON H.HuespedID = R.HuespedID
+JOIN 
+    Habitaciones HR ON R.HabitacionID = HR.HabitacionID;
+
 
 --PROCEDIMIENTOS
 --actualizar el precio de la habitacion
