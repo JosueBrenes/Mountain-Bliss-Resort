@@ -91,6 +91,8 @@ CREATE TABLE Proveedores (
     Email VARCHAR2(100)
 );
 
+--INSERTS
+
 
 
 --VISTAS
@@ -114,7 +116,7 @@ JOIN
 WHERE 
     R.Estado = 'Confirmada';
 
-
+/
 --PARA VER LA FACTURA DETALLADA
 CREATE VIEW VistaFacturacionDetallada AS
 SELECT 
@@ -179,6 +181,43 @@ JOIN
     Inventarios I ON CH.InventarioID = I.InventarioID;
 
 --PROCEDIMIENTOS
+--actualizar el precio de la habitacion
+CREATE OR REPLACE PROCEDURE UPDATE_ROOM_PRICE (
+    ROOM_TYPE IN VARCHAR2,
+    NEW_PRICE IN NUMBER
+) AS
+BEGIN
+    UPDATE Habitaciones
+    SET PrecioPorNoche = NEW_PRICE
+    WHERE TipoHabitacion = ROOM_TYPE;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE LISTAR_HABITACIONES_DISPONIBLES (
+    p_fecha_inicio IN DATE,
+    p_fecha_fin IN DATE
+) AS
+BEGIN
+    FOR rec IN (
+        SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
+        FROM Habitaciones
+        WHERE HabitacionID NOT IN (
+            SELECT HabitacionID
+            FROM Reservas
+            WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
+               OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
+               OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
+               OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
+        )
+        AND Estado = 'Disponible'
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('HabitacionID: ' || rec.HabitacionID);
+        DBMS_OUTPUT.PUT_LINE('NumeroHabitacion: ' || rec.NumeroHabitacion);
+        DBMS_OUTPUT.PUT_LINE('TipoHabitacion: ' || rec.TipoHabitacion);
+        DBMS_OUTPUT.PUT_LINE('PrecioPorNoche: ' || rec.PrecioPorNoche);
+    END LOOP;
+END;
+/
 -- calcular precio de la reserva
 
 CREATE OR REPLACE PROCEDURE CALCULAR_PRECIO_RESERVA (
@@ -201,38 +240,63 @@ CREATE OR REPLACE PROCEDURE LISTAR_HABITACIONES_DISPONIBLES (
     p_fecha_fin IN DATE
 ) AS
 BEGIN
-    SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
-    FROM Habitaciones
-    WHERE HabitacionID NOT IN (
-        SELECT HabitacionID
-        FROM Reservas
-        WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
-           OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
-           OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
-           OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
-    )
-    AND Estado = 'Disponible';
+    FOR rec IN (
+        SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
+        FROM Habitaciones
+        WHERE HabitacionID NOT IN (
+            SELECT HabitacionID
+            FROM Reservas
+            WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
+               OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
+               OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
+               OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
+        )
+        AND Estado = 'Disponible'
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('HabitacionID: ' || rec.HabitacionID);
+        DBMS_OUTPUT.PUT_LINE('NumeroHabitacion: ' || rec.NumeroHabitacion);
+        DBMS_OUTPUT.PUT_LINE('TipoHabitacion: ' || rec.TipoHabitacion);
+        DBMS_OUTPUT.PUT_LINE('PrecioPorNoche: ' || rec.PrecioPorNoche);
+    END LOOP;
 END;
 /
 
 
 -- ver info huesped por buscar id
-
 CREATE OR REPLACE PROCEDURE OBTENER_HUESPED_POR_RESERVA (
     p_reserva_id IN Reservas.ReservaID%TYPE
 ) AS
+    v_huesped_id Huespedes.HuespedID%TYPE;
+    v_nombre Huespedes.Nombre%TYPE;
+    v_apellido Huespedes.Apellido%TYPE;
+    v_fecha_nacimiento Huespedes.FechaNacimiento%TYPE;
+    v_direccion Huespedes.Direccion%TYPE;
+    v_telefono Huespedes.Telefono%TYPE;
+    v_email Huespedes.Email%TYPE;
 BEGIN
-    SELECT HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    SELECT HuespedID
+    INTO v_huesped_id
+    FROM Reservas
+    WHERE ReservaID = p_reserva_id;
+
+    SELECT Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    INTO v_nombre, v_apellido, v_fecha_nacimiento, v_direccion, v_telefono, v_email
     FROM Huespedes
-    WHERE HuespedID = (
-        SELECT HuespedID
-        FROM Reservas
-        WHERE ReservaID = p_reserva_id
-    );
+    WHERE HuespedID = v_huesped_id;
+
+    DBMS_OUTPUT.PUT_LINE('HuespedID: ' || v_huesped_id);
+    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_nombre);
+    DBMS_OUTPUT.PUT_LINE('Apellido: ' || v_apellido);
+    DBMS_OUTPUT.PUT_LINE('FechaNacimiento: ' || v_fecha_nacimiento);
+    DBMS_OUTPUT.PUT_LINE('Direccion: ' || v_direccion);
+    DBMS_OUTPUT.PUT_LINE('Telefono: ' || v_telefono);
+    DBMS_OUTPUT.PUT_LINE('Email: ' || v_email);
 END;
 /
-
-
+BEGIN
+    OBTENER_HUESPED_POR_RESERVA(1); 
+END;
+/
 -- cambiar de cuarto calcular precios
 
 CREATE OR REPLACE PROCEDURE ACTUALIZAR_PRECIO_HABITACION (
@@ -247,19 +311,12 @@ END;
 /
 
 
--- actualizar precio habitacion por cambio de habitacion
-CREATE OR REPLACE PROCEDURE UPDATE_ROOM_PRICE (
-    ROOM_TYPE IN VARCHAR(50),
-    NEW_PRICE IN NUMBER
-) AS
-BEGIN
-    UPDATE ROOMS
-    SET PRICE_PER_NIGHT = NEW_PRICE
-    WHERE ROOM_TYPE = ROOM_TYPE;
-END;
-/
+
 
 -- agregar empleado con dbms
+CREATE SEQUENCE Empleados_SEQ
+START WITH 1
+INCREMENT BY 1;
 CREATE OR REPLACE PROCEDURE AGREGAR_EMPLEADO(
     p_nombre IN Empleados.Nombre%TYPE,
     p_apellido IN Empleados.Apellido%TYPE,
@@ -277,6 +334,9 @@ END;
 /
 
 -- agregar factura con dbms
+CREATE SEQUENCE Facturacion_SEQ
+START WITH 1
+INCREMENT BY 1;
 CREATE OR REPLACE PROCEDURE AGREGAR_FACTURA(
     p_reserva_id IN Facturacion.ReservaID%TYPE,
     p_fecha_factura IN Facturacion.FechaFactura%TYPE,
@@ -291,6 +351,9 @@ BEGIN
 END;
 /
 
+CREATE SEQUENCE Huespedes_SEQ
+START WITH 1
+INCREMENT BY 1;
 --Procedimiento para agregar un huesped
 CREATE OR REPLACE PROCEDURE AGREGAR_HUESPED(
     p_nombre IN Huespedes.Nombre%TYPE,
@@ -314,7 +377,8 @@ BEGIN
     AGREGAR_HUESPED('Carlos', 'Pérez', TO_DATE('1985-04-23', 'YYYY-MM-DD'), 'Calle Falsa 123', '123456789', 'carlos.perez@example.com');
 END;
 
-
+SET SERVEROUTPUT ON;
+/
 --Procedimeinto para actualizar el estado de una Reserva
 CREATE OR REPLACE PROCEDURE ACTUALIZAR_ESTADO_RESERVA(
     p_reservaID IN Reservas.ReservaID%TYPE,
@@ -330,8 +394,10 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
 END ACTUALIZAR_ESTADO_RESERVA;
-
-
+/
+CREATE SEQUENCE Mantenimiento_SEQ
+START WITH 1
+INCREMENT BY 1;
 --Procedimiento para registrar un nuevo mantenimento
 CREATE OR REPLACE PROCEDURE REGISTRAR_MANTENIMIENTO(
     p_habitacionID IN Mantenimiento.HabitacionID%TYPE,
@@ -353,7 +419,11 @@ END REGISTRAR_MANTENIMIENTO;
 BEGIN
     REGISTRAR_MANTENIMIENTO(1, SYSDATE, 'Cambio de sábanas y limpieza', 50);
 END;
+/
 
+CREATE SEQUENCE Servicios_SEQ
+START WITH 1
+INCREMENT BY 1;
 --Procedimiento para agregar un nuevo servicio
 CREATE OR REPLACE PROCEDURE AGREGAR_SERVICIO(
     p_nombre_servicio IN Servicios.NombreServicio%TYPE,
