@@ -93,6 +93,125 @@ CREATE TABLE Proveedores (
 
 --INSERTS
 
+-- Insert into Huespedes
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (1, 'Juan', 'Perez', TO_DATE('1985-01-15', 'YYYY-MM-DD'), '123 Main St', '1234567890', 'juan.perez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (2, 'Maria', 'Lopez', TO_DATE('1990-02-20', 'YYYY-MM-DD'), '456 Elm St', '2345678901', 'maria.lopez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (3, 'Carlos', 'Gonzalez', TO_DATE('1975-03-25', 'YYYY-MM-DD'), '789 Pine St', '3456789012', 'carlos.gonzalez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (4, 'Ana', 'Martinez', TO_DATE('1980-04-30', 'YYYY-MM-DD'), '101 Maple St', '4567890123', 'ana.martinez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (5, 'Luis', 'Garcia', TO_DATE('1995-05-05', 'YYYY-MM-DD'), '202 Oak St', '5678901234', 'luis.garcia@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (6, 'Laura', 'Hernandez', TO_DATE('1988-06-10', 'YYYY-MM-DD'), '303 Cedar St', '6789012345', 'laura.hernandez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (7, 'Miguel', 'Rodriguez', TO_DATE('1983-07-15', 'YYYY-MM-DD'), '404 Birch St', '7890123456', 'miguel.rodriguez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (8, 'Elena', 'Sanchez', TO_DATE('1992-08-20', 'YYYY-MM-DD'), '505 Spruce St', '8901234567', 'elena.sanchez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (9, 'David', 'Ramirez', TO_DATE('1970-09-25', 'YYYY-MM-DD'), '606 Fir St', '9012345678', 'david.ramirez@example.com');
+INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email) VALUES (10, 'Patricia', 'Diaz', TO_DATE('1985-10-30', 'YYYY-MM-DD'), '707 Ash St', '0123456789', 'patricia.diaz@example.com');
+
+-- Insert into Empleados
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (1, 'Carlos', 'Torres', 'Recepcionista', TO_DATE('2015-01-10', 'YYYY-MM-DD'), 2500.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (2, 'Ana', 'Gutierrez', 'Limpieza', TO_DATE('2016-02-15', 'YYYY-MM-DD'), 1800.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (3, 'Miguel', 'Fernandez', 'Mantenimiento', TO_DATE('2017-03-20', 'YYYY-MM-DD'), 2200.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (4, 'Laura', 'Morales', 'Cocinero', TO_DATE('2018-04-25', 'YYYY-MM-DD'), 2800.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (5, 'Luis', 'Gomez', 'Mesero', TO_DATE('2019-05-30', 'YYYY-MM-DD'), 2000.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (6, 'Elena', 'Vargas', 'Gerente', TO_DATE('2020-06-05', 'YYYY-MM-DD'), 3500.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (7, 'David', 'Castillo', 'Botones', TO_DATE('2021-07-10', 'YYYY-MM-DD'), 1500.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (8, 'Patricia', 'Mendoza', 'Recepcionista', TO_DATE('2022-08-15', 'YYYY-MM-DD'), 2500.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (9, 'Carlos', 'Rojas', 'Limpieza', TO_DATE('2023-09-20', 'YYYY-MM-DD'), 1800.00);
+INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario) VALUES (10, 'Ana', 'Martinez', 'Cocinero', TO_DATE('2024-10-25', 'YYYY-MM-DD'), 2800.00);
+
+-- Insert into Habitaciones
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (1, '101', 'Simple', 50.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (2, '102', 'Doble', 75.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (3, '103', 'Suite', 150.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (4, '104', 'Simple', 50.00, 'Ocupada');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (5, '105', 'Doble', 75.00, 'Ocupada');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (6, '106', 'Suite', 150.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (7, '107', 'Simple', 50.00, 'Mantenimiento');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (8, '108', 'Doble', 75.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (9, '109', 'Suite', 150.00, 'Disponible');
+INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado) VALUES (10, '110', 'Simple', 50.00, 'Disponible');
+
+-- Insert into Reservas
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (1, 1, 1, TO_DATE('2024-01-01', 'YYYY-MM-DD'), TO_DATE('2024-01-05', 'YYYY-MM-DD'), 'Confirmada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (2, 2, 2, TO_DATE('2024-02-10', 'YYYY-MM-DD'), TO_DATE('2024-02-15', 'YYYY-MM-DD'), 'Pendiente');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (3, 3, 3, TO_DATE('2024-03-20', 'YYYY-MM-DD'), TO_DATE('2024-03-25', 'YYYY-MM-DD'), 'Cancelada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (4, 4, 4, TO_DATE('2024-04-05', 'YYYY-MM-DD'), TO_DATE('2024-04-10', 'YYYY-MM-DD'), 'Confirmada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (5, 5, 5, TO_DATE('2024-05-15', 'YYYY-MM-DD'), TO_DATE('2024-05-20', 'YYYY-MM-DD'), 'Pendiente');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (6, 6, 6, TO_DATE('2024-06-25', 'YYYY-MM-DD'), TO_DATE('2024-06-30', 'YYYY-MM-DD'), 'Confirmada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (7, 7, 7, TO_DATE('2024-07-05', 'YYYY-MM-DD'), TO_DATE('2024-07-10', 'YYYY-MM-DD'), 'Pendiente');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (8, 8, 8, TO_DATE('2024-08-15', 'YYYY-MM-DD'), TO_DATE('2024-08-20', 'YYYY-MM-DD'), 'Cancelada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (9, 9, 9, TO_DATE('2024-09-25', 'YYYY-MM-DD'), TO_DATE('2024-09-30', 'YYYY-MM-DD'), 'Confirmada');
+INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado) VALUES (10, 10, 10, TO_DATE('2024-10-05', 'YYYY-MM-DD'), TO_DATE('2024-10-10', 'YYYY-MM-DD'), 'Pendiente');
+
+-- Insert into Servicios
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (1, 'Spa', 'Relaxing spa treatments', 100.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (2, 'Gimnasio', 'Full gym access', 50.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (3, 'Piscina', 'Access to the swimming pool', 30.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (4, 'Desayuno', 'Continental breakfast', 20.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (5, 'Cena', 'Gourmet dinner', 75.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (6, 'Lavanderia', 'Laundry services', 40.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (7, 'Transporte', 'Airport shuttle service', 60.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (8, 'Tour', 'City tour', 80.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (9, 'Masaje', 'Full body massage', 120.00);
+INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) VALUES (10, 'Estacionamiento', 'Parking service', 25.00);
+
+-- Insert into Facturacion
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (1, 1, TO_DATE('2024-01-05', 'YYYY-MM-DD'), 200.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (2, 2, TO_DATE('2024-02-15', 'YYYY-MM-DD'), 375.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (3, 4, TO_DATE('2024-04-10', 'YYYY-MM-DD'), 250.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (4, 5, TO_DATE('2024-05-20', 'YYYY-MM-DD'), 375.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (5, 6, TO_DATE('2024-06-30', 'YYYY-MM-DD'), 750.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (6, 7, TO_DATE('2024-07-10', 'YYYY-MM-DD'), 250.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (7, 9, TO_DATE('2024-09-30', 'YYYY-MM-DD'), 750.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (8, 10, TO_DATE('2024-10-10', 'YYYY-MM-DD'), 250.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (9, 3, TO_DATE('2024-03-25', 'YYYY-MM-DD'), 750.00);
+INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total) VALUES (10, 8, TO_DATE('2024-08-20', 'YYYY-MM-DD'), 375.00);
+
+-- Insert into Inventarios
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (1, 'Jabón', 100, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (2, 'Shampoo', 200, 'Botellas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (3, 'Toallas', 300, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (4, 'Sábanas', 400, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (5, 'Almohadas', 150, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (6, 'Cobijas', 100, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (7, 'Papel Higiénico', 500, 'Rollos');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (8, 'Vasos', 200, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (9, 'Platos', 250, 'Piezas');
+INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida) VALUES (10, 'Cucharas', 300, 'Piezas');
+
+-- Insert into CantidadInventarioPorHabitacion
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (1, 1, 5);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (1, 2, 2);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (1, 3, 4);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (2, 1, 5);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (2, 2, 2);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (2, 3, 4);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (3, 1, 5);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (3, 2, 2);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (3, 3, 4);
+INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad) VALUES (4, 1, 5);
+
+-- Insert into Mantenimiento
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (1, 1, TO_DATE('2024-01-01', 'YYYY-MM-DD'), 'Cambio de sábanas', 50.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (2, 2, TO_DATE('2024-02-01', 'YYYY-MM-DD'), 'Reparación de aire acondicionado', 100.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (3, 3, TO_DATE('2024-03-01', 'YYYY-MM-DD'), 'Limpieza de alfombra', 75.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (4, 4, TO_DATE('2024-04-01', 'YYYY-MM-DD'), 'Pintura de paredes', 150.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (5, 5, TO_DATE('2024-05-01', 'YYYY-MM-DD'), 'Cambio de lámparas', 60.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (6, 6, TO_DATE('2024-06-01', 'YYYY-MM-DD'), 'Reparación de ventana', 90.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (7, 7, TO_DATE('2024-07-01', 'YYYY-MM-DD'), 'Cambio de cortinas', 45.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (8, 8, TO_DATE('2024-08-01', 'YYYY-MM-DD'), 'Reparación de televisión', 110.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (9, 9, TO_DATE('2024-09-01', 'YYYY-MM-DD'), 'Cambio de colchón', 200.00);
+INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo) VALUES (10, 10, TO_DATE('2024-10-01', 'YYYY-MM-DD'), 'Limpieza de baño', 30.00);
+
+-- Insert into Proveedores
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (1, 'Proveedores ABC', '123 Proveedor St', '1234567890', 'contacto@proveedoresabc.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (2, 'Distribuciones XYZ', '456 Distribuidor Ave', '2345678901', 'ventas@distribucionesxyz.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (3, 'Suministros QRS', '789 Suministro Blvd', '3456789012', 'info@suministrosqrs.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (4, 'Productos LMN', '101 Producto Rd', '4567890123', 'soporte@productoslmn.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (5, 'Materiales OPQ', '202 Materiales St', '5678901234', 'contacto@materialesopq.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (6, 'Servicios DEF', '303 Servicio Ave', '6789012345', 'ventas@serviciosdef.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (7, 'Implementos UVW', '404 Implemento Blvd', '7890123456', 'info@implementosuvw.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (8, 'Distribuciones TUV', '505 Distribuidor Rd', '8901234567', 'soporte@distribucionestuv.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (9, 'Proveedores GHI', '606 Proveedor St', '9012345678', 'contacto@proveedoresghi.com');
+INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (10, 'Suministros JKL', '707 Suministro Ave', '0123456789', 'ventas@suministrosjkl.com');
 
 
 --VISTAS
