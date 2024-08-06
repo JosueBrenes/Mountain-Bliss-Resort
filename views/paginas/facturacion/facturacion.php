@@ -62,15 +62,15 @@ oci_execute($stid);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while (($row = oci_fetch_assoc($stid)) !== false): ?>
+                        <?php while ($row = oci_fetch_assoc($stid)): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['FACTURAID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['RESERVAID'], ENT_QUOTES); ?></td>
-                                <td><?php echo htmlspecialchars($row['FECHAFACTURA'], ENT_QUOTES); ?></td>
-                                <td><?php echo htmlspecialchars($row['TOTAL'], ENT_QUOTES); ?></td>
+                                <td><?php echo htmlspecialchars(date('d-m-Y', strtotime($row['FECHAFACTURA'])), ENT_QUOTES); ?></td>
+                                <td><?php echo htmlspecialchars(number_format($row['TOTAL'], 2), ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_factura.php?id=<?php echo urlencode($row['FACTURAID']); ?>">Editar</a> |
-                                    <a href="eliminar_factura.php?id=<?php echo urlencode($row['FACTURAID']); ?>">Eliminar</a>
+                                    <a href="editar_factura.php?id=<?php echo htmlspecialchars($row['FACTURAID'], ENT_QUOTES); ?>" class="btn btn-sm" style="background-color: #013e6a; color: white;">Editar</a>
+                                    <a href="eliminar_factura.php?id=<?php echo htmlspecialchars($row['FACTURAID'], ENT_QUOTES); ?>" class="btn btn-sm" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

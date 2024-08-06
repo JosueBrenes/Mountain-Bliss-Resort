@@ -74,8 +74,8 @@ oci_execute($stid);
                                 <td><?php echo htmlspecialchars($row['FECHASALIDA'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['ESTADO'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_reserva.php?id=<?php echo urlencode($row['RESERVAID']); ?>">Editar</a> |
-                                    <a href="eliminar_reserva.php?id=<?php echo urlencode($row['RESERVAID']); ?>">Eliminar</a>
+                                    <a href="editar_reserva.php?id=<?php echo urlencode($row['RESERVAID']); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a>
+                                    <a href="eliminar_reserva.php?id=<?php echo urlencode($row['RESERVAID']); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar esta reserva?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

@@ -72,8 +72,8 @@ oci_execute($stid);
                                 <td><?php echo htmlspecialchars($row['DESCRIPCION'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['COSTO'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_mantenimiento.php?id=<?php echo urlencode($row['MANTENIMIENTOID']); ?>">Editar</a> |
-                                    <a href="eliminar_mantenimiento.php?id=<?php echo urlencode($row['MANTENIMIENTOID']); ?>">Eliminar</a>
+                <a href="editar_mantenimiento.php?id=<?php echo htmlspecialchars($row['MANTENIMIENTOID'], ENT_QUOTES); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a>
+                <a href="eliminar_mantenimiento.php?id=<?php echo htmlspecialchars($row['MANTENIMIENTOID'], ENT_QUOTES); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar este mantenimiento?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

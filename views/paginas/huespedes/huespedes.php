@@ -66,18 +66,18 @@ oci_execute($stid);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while (($row = oci_fetch_assoc($stid)) !== false): ?>
+                        <?php while ($row = oci_fetch_assoc($stid)): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['HUESPEDID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['NOMBRE'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['APELLIDO'], ENT_QUOTES); ?></td>
-                                <td><?php echo htmlspecialchars($row['FECHANACIMIENTO'], ENT_QUOTES); ?></td>
+                                <td><?php echo htmlspecialchars(date('d/m/Y', strtotime($row['FECHANACIMIENTO'])), ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['DIRECCION'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['TELEFONO'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['EMAIL'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_huesped.php?id=<?php echo urlencode($row['HUESPEDID']); ?>">Editar</a> |
-                                    <a href="eliminar_huesped.php?id=<?php echo urlencode($row['HUESPEDID']); ?>">Eliminar</a>
+                                    <a href="editar_huesped.php?id=<?php echo htmlspecialchars($row['HUESPEDID'], ENT_QUOTES); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a>
+                                    <a href="eliminar_huesped.php?id=<?php echo htmlspecialchars($row['HUESPEDID'], ENT_QUOTES); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar este huésped?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

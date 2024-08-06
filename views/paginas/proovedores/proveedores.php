@@ -72,8 +72,8 @@ oci_execute($stid);
                                 <td><?php echo htmlspecialchars($row['TELEFONO'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['EMAIL'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_proveedor.php?id=<?php echo urlencode($row['PROVEEDORID']); ?>">Editar</a> |
-                                    <a href="eliminar_proveedor.php?id=<?php echo urlencode($row['PROVEEDORID']); ?>">Eliminar</a>
+                                    <a href="editar_proveedor.php?id=<?php echo urlencode($row['PROVEEDORID']); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a>
+                                    <a href="eliminar_proveedor.php?id=<?php echo urlencode($row['PROVEEDORID']); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar este proveedor?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

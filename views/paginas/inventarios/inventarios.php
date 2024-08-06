@@ -70,8 +70,8 @@ oci_execute($stid);
                                 <td><?php echo htmlspecialchars($row['CANTIDADTOTAL'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['UNIDADMEDIDA'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_inventario.php?id=<?php echo urlencode($row['INVENTARIOID']); ?>">Editar</a> |
-                                    <a href="eliminar_inventario.php?id=<?php echo urlencode($row['INVENTARIOID']); ?>">Eliminar</a>
+                                    <a href="editar_inventario.php?id=<?php echo urlencode($row['INVENTARIOID']); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a> |
+                                    <a href="eliminar_inventario.php?id=<?php echo urlencode($row['INVENTARIOID']); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar este inventario?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

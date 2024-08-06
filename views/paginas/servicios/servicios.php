@@ -70,8 +70,8 @@ oci_execute($stid);
                                 <td><?php echo htmlspecialchars($row['DESCRIPCION'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['PRECIO'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_servicio.php?id=<?php echo urlencode($row['SERVICIOID']); ?>">Editar</a> |
-                                    <a href="eliminar_servicio.php?id=<?php echo urlencode($row['SERVICIOID']); ?>">Eliminar</a>
+                                    <a href="editar_servicio.php?id=<?php echo urlencode($row['SERVICIOID']); ?>" class="btn" style="background-color: #013e6a; color: white;">Editar</a> |
+                                    <a href="eliminar_servicio.php?id=<?php echo urlencode($row['SERVICIOID']); ?>" class="btn" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
