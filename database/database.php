@@ -1,14 +1,16 @@
 <?php
-$username = 'system';
-$password = 'Filipenses4';
-$connection_string = 'localhost/orcl'; 
+// Datos de conexión
+$username = 'admin';
+$password = 'admin';
+$dbname = 'Mountain-Bliss-Resort'; 
+$hostname = 'localhost:1521/orcl';
 
-$connection = oci_connect($username, $password, $connection_string);
+// Establecer la conexión
+$conn = oci_connect($username, $password, $hostname);
 
-if (!$connection) {
+if (!$conn) {
     $e = oci_error();
-    echo "No se pudo conectar a la base de datos: " . $e['message'];
-} else {
-    echo "Conexión exitosa!";
+    echo htmlentities($e['message'], ENT_QUOTES);
+    exit;
 }
 ?>

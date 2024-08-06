@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mountain-Bliss-Resort</title>
+  <title>Dashboard Administrativa - Mountain-Bliss-Resort</title>
   <link
     rel="stylesheet"
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -16,46 +16,46 @@
     type="image/x-icon"
   />
 </head>
-
 <body>
-  <header class="navbar">
-    <a href="../public/index.php">
-      <img src="../public/build/img/logo.png" alt="Logo" />
-    </a>
-    <nav class="menu">
-      <a href="./index.php">Inicio</a>
-      <a href="../views/paginas/services.php">Servicios</a>
-      <a href="../views/paginas/prices.php">Precios</a>
-      <a href="../views/paginas/about_us.php">Sobre nosotros</a>
-      <?php
-      session_start();
-      $loggedIn = isset($_SESSION['correo']);
-      ?>
-      <?php if ($loggedIn): ?>
-        <a href="../views/paginas/bookings.php">Reservaciones</a>
-        <a href="../views/auth/logout.php" class="btn-login">Cerrar sesión</a>
-      <?php else: ?>
-        <a href="../views/auth/login.php" class="btn-login">Iniciar sesión</a>
-      <?php endif; ?>
-      <a
-        href="../views/paginas/contact_us.php"
-        class="btn-contact"
-        style="background-color: #F54670"
-        >Contáctenos</a
-      >
-    </nav>
-  </header>
 
-  <!-- Contenido principal -->
-  <div class="hero">
-    <div class="hero-text">
-      <h1>Bienvenido a Mountain-Bliss-Resort</h1>
-      <p>Disfruta de una experiencia única en la montaña</p>
-      <a href="../views/paginas/bookings.php" class="btn-booking">Reserva Ahora</a>
-    </div>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+  <h2>Opciones</h2>
+    <a href="../views/paginas/huespedes/huespedes.php">Gestionar Huéspedes</a>
+    <a href="../views/paginas/empleados/empleados.php">Gestionar Empleados</a>
+    <a href="../views/paginas/habitaciones/habitaciones.php">Gestionar Habitaciones</a>
+    <a href="../views/paginas/reservas/reservas.php">Gestionar Reservas</a>
+    <a href="../views/paginas/servicios/servicios.php">Gestionar Servicios</a>
+    <a href="../views/paginas/facturacion/facturacion.php">Gestionar Facturación</a>
+    <a href="../views/paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
+    <a href="../views/paginas/inventarios/cantidad_inventario_por_habitacion.php">Ver Cantidades de Inventario</a>
+    <a href="../views/paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
+    <a href="../views/paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Header -->
+    <header class="header_area">
+      <a href="../../../public/index.php" class="header_link">
+          <h1>Mountain-Bliss-Resort</h1>
+      </a>
+    </header>
+
+    <!-- Main Content -->
+    <section class="options_area">
+      <div class="container">
+        <div class="row">
+          <!-- Contenido principal aquí -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer_area">
+      <p class="footer_text">&copy; 2024 Mountain-Bliss-Resort. Todos los derechos reservados.</p>
+    </footer>
   </div>
 
-  <!-- Footer -->
-  <?php include '../views/templates/footer.php'; ?>
 </body>
 </html>
