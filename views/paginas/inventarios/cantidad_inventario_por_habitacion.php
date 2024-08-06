@@ -51,7 +51,7 @@ oci_execute($stid);
         <section class="options_area">
             <div class="container">
                 <h1 style="color: #333">Cantidad de Inventario por Habitación</h1>
-                <a href="agregar_cantidad_inventario.php" class="button">Agregar Cantidad de Inventario</a>
+                <a href="agregar_cantidad_inventario_por_habitacion.php" class="button">Agregar Cantidad de Inventario</a>
                 <table class="table">
                     <thead>
                         <tr>

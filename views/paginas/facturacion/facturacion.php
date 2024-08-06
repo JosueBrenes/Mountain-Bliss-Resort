@@ -35,7 +35,7 @@ oci_execute($stid);
         <a href="../../paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
         <a href="../../paginas/inventarios/cantidad_inventario_por_habitacion.php">Ver Cantidades de Inventario</a>
         <a href="../../paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
-        <a href="../views/paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
+        <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
 
     <!-- Content -->
@@ -50,7 +50,7 @@ oci_execute($stid);
         <section class="options_area">
             <div class="container">
                 <h1 style="color: #333">Facturación</h1>
-                <a href="agregar_factura.php" class="button">Agregar Nueva Factura</a>
+                <a href="agregar_facturacion.php" class="button">Agregar Nueva Factura</a>
                 <table>
                     <thead>
                         <tr>

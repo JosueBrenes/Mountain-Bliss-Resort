@@ -52,7 +52,7 @@ oci_execute($stid);
       <a href="../../paginas/mantenimiento/mantenimiento.php"
         >Gestionar Mantenimiento</a
       >
-      <a href="../views/paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
+      <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
 
     <!-- Content -->

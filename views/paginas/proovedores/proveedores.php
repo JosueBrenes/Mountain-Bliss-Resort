@@ -35,7 +35,7 @@ oci_execute($stid);
         <a href="../../paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
         <a href="../../paginas/inventarios/cantidad_inventario_por_habitacion.php">Ver Cantidades de Inventario</a>
         <a href="../../paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
-        <a href="../views/paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
+        <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
 
     <!-- Content -->
