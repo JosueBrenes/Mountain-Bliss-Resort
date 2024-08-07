@@ -32,27 +32,16 @@ oci_execute($stid);
   <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-      <h2>Opciones Administrativas</h2>
-      <a href="../../paginas/huespedes/huespedes.php">Gestionar Huéspedes</a>
-      <a href="../../paginas/empleados/empleados.php">Gestionar Empleados</a>
-      <a href="../../paginas/habitaciones/habitaciones.php"
-        >Gestionar Habitaciones</a
-      >
-      <a href="../../paginas/reservas/reservas.php">Gestionar Reservas</a>
-      <a href="../../paginas/servicios/servicios.php">Gestionar Servicios</a>
-      <a href="../../paginas/facturacion/facturacion.php"
-        >Gestionar Facturación</a
-      >
-      <a href="../../paginas/inventarios/inventarios.php"
-        >Gestionar Inventarios</a
-      >
-      <a href="../../paginas/inventarios/cantidad_inventario_por_habitacion.php"
-        >Ver Cantidades de Inventario</a
-      >
-      <a href="../../paginas/mantenimiento/mantenimiento.php"
-        >Gestionar Mantenimiento</a
-      >
-      <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
+        <h2>Opciones Administrativas</h2>
+        <a href="../../paginas/huespedes/huespedes.php">Gestionar Huéspedes</a>
+        <a href="../../paginas/empleados/empleados.php">Gestionar Empleados</a>
+        <a href="../../paginas/habitaciones/habitaciones.php">Gestionar Habitaciones</a>
+        <a href="../../paginas/reservas/reservas.php">Gestionar Reservas</a>
+        <a href="../../paginas/servicios/servicios.php">Gestionar Servicios</a>
+        <a href="../../paginas/facturacion/facturacion.php">Gestionar Facturación</a>
+        <a href="../../paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
+        <a href="../../paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
+        <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
 
     <!-- Content -->
@@ -72,6 +61,9 @@ oci_execute($stid);
               <h1 style="color: #333">Empleados</h1>
               <a href="agregar_empleado.php" class="button"
                 >Agregar Nuevo Empleado</a
+              >
+              <a href="funciones/generar_reporte_empleados.php" class="button"
+                >Filtrar empleado por puesto</a
               >
               <table>
                 <thead>

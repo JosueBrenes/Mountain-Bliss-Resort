@@ -33,10 +33,10 @@ oci_execute($stid);
         <a href="../../paginas/servicios/servicios.php">Gestionar Servicios</a>
         <a href="../../paginas/facturacion/facturacion.php">Gestionar Facturación</a>
         <a href="../../paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
-        <a href="../../paginas/inventarios/cantidad_inventario_por_habitacion.php">Ver Cantidades de Inventario</a>
         <a href="../../paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
         <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
+    
 
     <!-- Content -->
     <div class="content">
@@ -52,6 +52,7 @@ oci_execute($stid);
             <div class="container">
                 <h1 style="color: #333">Habitaciones</h1>
                 <a href="agregar_habitacion.php" class="button">Agregar Nueva Habitación</a>
+                <a href="funciones/generar_reporte_habitaciones.php" class="button">Filtrar Habitación por estado</a>
                 <table>
                     <thead>
                         <tr>

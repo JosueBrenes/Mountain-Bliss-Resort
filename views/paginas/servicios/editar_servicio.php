@@ -47,7 +47,6 @@ oci_close($conn);
         <a href="../../paginas/servicios/servicios.php">Gestionar Servicios</a>
         <a href="../../paginas/facturacion/facturacion.php">Gestionar Facturación</a>
         <a href="../../paginas/inventarios/inventarios.php">Gestionar Inventarios</a>
-        <a href="../../paginas/inventarios/cantidad_inventario_por_habitacion.php">Ver Cantidades de Inventario</a>
         <a href="../../paginas/mantenimiento/mantenimiento.php">Gestionar Mantenimiento</a>
         <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
