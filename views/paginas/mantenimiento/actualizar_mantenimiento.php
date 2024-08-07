@@ -16,15 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Mantenimiento SET HabitacionID = :habitacion_id, FechaMantenimiento = TO_DATE(:fecha_mantenimiento, \'YYYY-MM-DD\'), Descripcion = :descripcion, Costo = :costo WHERE MantenimientoID = :mantenimiento_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_MANTENIMIENTO(:mantenimiento_id, :habitacion_id, TO_DATE(:fecha_mantenimiento, \'YYYY-MM-DD\'), :descripcion, :costo); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':mantenimiento_id', $mantenimiento_id);
     oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
     oci_bind_by_name($stid, ':fecha_mantenimiento', $fecha_mantenimiento);
     oci_bind_by_name($stid, ':descripcion', $descripcion);
     oci_bind_by_name($stid, ':costo', $costo);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: mantenimiento.php?msg=Mantenimiento actualizado con éxito');
     } else {
@@ -37,3 +40,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     die("Método de solicitud no válido.");
 }
+?>

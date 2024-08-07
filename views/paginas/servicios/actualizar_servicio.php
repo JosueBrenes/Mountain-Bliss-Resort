@@ -15,14 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Servicios SET NombreServicio = :nombre_servicio, Descripcion = :descripcion, Precio = :precio WHERE ServicioID = :servicio_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_SERVICIO(:servicio_id, :nombre_servicio, :descripcion, :precio); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':servicio_id', $servicio_id);
     oci_bind_by_name($stid, ':nombre_servicio', $nombre_servicio);
     oci_bind_by_name($stid, ':descripcion', $descripcion);
     oci_bind_by_name($stid, ':precio', $precio);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: servicios.php?msg=Servicio actualizado con éxito');
     } else {

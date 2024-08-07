@@ -17,9 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Los campos Nombre y Apellido son requeridos.");
     }
 
-    $sql = 'UPDATE Empleados SET Nombre = :nombre, Apellido = :apellido, Puesto = :puesto, FechaContratacion = TO_DATE(:fecha_contratacion, \'YYYY-MM-DD\'), Salario = :salario WHERE EmpleadoID = :empleado_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_EMPLEADO(:empleado_id, :nombre, :apellido, :puesto, TO_DATE(:fecha_contratacion, \'YYYY-MM-DD\'), :salario); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':empleado_id', $empleado_id);
     oci_bind_by_name($stid, ':nombre', $nombre);
     oci_bind_by_name($stid, ':apellido', $apellido);
@@ -27,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     oci_bind_by_name($stid, ':fecha_contratacion', $fecha_contratacion);
     oci_bind_by_name($stid, ':salario', $salario);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: empleados.php?msg=Empleado actualizado con éxito');
     } else {

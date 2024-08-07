@@ -11,18 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cantidad_total = $_POST['cantidad_total'];
     $unidad_medida = $_POST['unidad_medida'];
 
-    if (empty($inventario_id) || empty($nombre_producto) || empty($cantidad_total)) {
+    if (empty($inventario_id) || empty($nombre_producto) || empty($cantidad_total) || empty($unidad_medida)) {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Inventarios SET NombreProducto = :nombre_producto, CantidadTotal = :cantidad_total, UnidadMedida = :unidad_medida WHERE InventarioID = :inventario_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_INVENTARIO(:inventario_id, :nombre_producto, :cantidad_total, :unidad_medida); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':inventario_id', $inventario_id);
     oci_bind_by_name($stid, ':nombre_producto', $nombre_producto);
     oci_bind_by_name($stid, ':cantidad_total', $cantidad_total);
     oci_bind_by_name($stid, ':unidad_medida', $unidad_medida);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: inventarios.php?msg=Inventario actualizado con éxito');
     } else {

@@ -17,9 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Reservas SET HuespedID = :huesped_id, HabitacionID = :habitacion_id, FechaEntrada = TO_DATE(:fecha_entrada, \'YYYY-MM-DD\'), FechaSalida = TO_DATE(:fecha_salida, \'YYYY-MM-DD\'), Estado = :estado WHERE ReservaID = :reserva_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_RESERVA(:reserva_id, :huesped_id, :habitacion_id, TO_DATE(:fecha_entrada, \'YYYY-MM-DD\'), TO_DATE(:fecha_salida, \'YYYY-MM-DD\'), :estado); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':reserva_id', $reserva_id);
     oci_bind_by_name($stid, ':huesped_id', $huesped_id);
     oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
@@ -27,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     oci_bind_by_name($stid, ':fecha_salida', $fecha_salida);
     oci_bind_by_name($stid, ':estado', $estado);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: reservas.php?msg=Reserva actualizada con éxito');
     } else {

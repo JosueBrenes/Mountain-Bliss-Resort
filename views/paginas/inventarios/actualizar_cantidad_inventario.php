@@ -14,13 +14,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE CantidadInventarioPorHabitacion SET Cantidad = :cantidad WHERE HabitacionID = :habitacion_id AND InventarioID = :inventario_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_CANTIDAD_INVENTARIO_POR_HABITACION(:habitacion_id, :inventario_id, :cantidad); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
     oci_bind_by_name($stid, ':inventario_id', $inventario_id);
     oci_bind_by_name($stid, ':cantidad', $cantidad);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: cantidad_inventario_por_habitacion.php?msg=Cantidad actualizada con éxito');
     } else {

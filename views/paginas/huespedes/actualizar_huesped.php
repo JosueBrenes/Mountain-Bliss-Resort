@@ -18,9 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Los campos Nombre y Apellido son requeridos.");
     }
 
-    $sql = 'UPDATE Huespedes SET Nombre = :nombre, Apellido = :apellido, FechaNacimiento = TO_DATE(:fecha_nacimiento, \'YYYY-MM-DD\'), Direccion = :direccion, Telefono = :telefono, Email = :email WHERE HuespedID = :huesped_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_HUESPED(:huesped_id, :nombre, :apellido, TO_DATE(:fecha_nacimiento, \'YYYY-MM-DD\'), :direccion, :telefono, :email); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':huesped_id', $huesped_id);
     oci_bind_by_name($stid, ':nombre', $nombre);
     oci_bind_by_name($stid, ':apellido', $apellido);
@@ -29,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     oci_bind_by_name($stid, ':telefono', $telefono);
     oci_bind_by_name($stid, ':email', $email);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: huespedes.php?msg=Huésped actualizado con éxito');
     } else {

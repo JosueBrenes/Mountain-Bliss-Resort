@@ -16,15 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("El ID del proveedor y el nombre son requeridos.");
     }
 
-    $sql = 'UPDATE Proveedores SET Nombre = :nombre, Direccion = :direccion, Telefono = :telefono, Email = :email WHERE ProveedorID = :proveedor_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_PROVEEDOR(:proveedor_id, :nombre, :direccion, :telefono, :email); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':proveedor_id', $proveedor_id);
     oci_bind_by_name($stid, ':nombre', $nombre);
     oci_bind_by_name($stid, ':direccion', $direccion);
     oci_bind_by_name($stid, ':telefono', $telefono);
     oci_bind_by_name($stid, ':email', $email);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: proveedores.php?msg=Proveedor actualizado con éxito');
     } else {
@@ -37,3 +40,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     die("Método de solicitud no válido.");
 }
+?>

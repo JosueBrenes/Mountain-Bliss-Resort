@@ -15,14 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Facturacion SET ReservaID = :reserva_id, FechaFactura = TO_DATE(:fecha_factura, \'YYYY-MM-DD\'), Total = :total WHERE FacturaID = :factura_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_FACTURA(:factura_id, :reserva_id, TO_DATE(:fecha_factura, \'YYYY-MM-DD\'), :total); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':factura_id', $factura_id);
     oci_bind_by_name($stid, ':reserva_id', $reserva_id);
     oci_bind_by_name($stid, ':fecha_factura', $fecha_factura);
     oci_bind_by_name($stid, ':total', $total);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: facturacion.php?msg=Factura actualizada con éxito');
     } else {
@@ -35,4 +38,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     die("Método de solicitud no válido.");
 }
-?>

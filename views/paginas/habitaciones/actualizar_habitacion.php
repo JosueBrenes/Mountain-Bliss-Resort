@@ -16,15 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Todos los campos son requeridos.");
     }
 
-    $sql = 'UPDATE Habitaciones SET NumeroHabitacion = :numero_habitacion, TipoHabitacion = :tipo_habitacion, PrecioPorNoche = :precio_por_noche, Estado = :estado WHERE HabitacionID = :habitacion_id';
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ACTUALIZAR_HABITACION(:habitacion_id, :numero_habitacion, :tipo_habitacion, :precio_por_noche, :estado); END;';
     $stid = oci_parse($conn, $sql);
 
+    // Enlazar los parámetros
     oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
     oci_bind_by_name($stid, ':numero_habitacion', $numero_habitacion);
     oci_bind_by_name($stid, ':tipo_habitacion', $tipo_habitacion);
     oci_bind_by_name($stid, ':precio_por_noche', $precio_por_noche);
     oci_bind_by_name($stid, ':estado', $estado);
 
+    // Ejecutar la llamada al procedimiento almacenado
     if (oci_execute($stid)) {
         header('Location: habitaciones.php?msg=Habitación actualizada con éxito');
     } else {
@@ -37,4 +40,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     die("Método de solicitud no válido.");
 }
-?>
