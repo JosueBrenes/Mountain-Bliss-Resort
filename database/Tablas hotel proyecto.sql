@@ -912,3 +912,362 @@ START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
+
+
+--CURSORES
+CREATE OR REPLACE PROCEDURE CURSOR_HUESPEDES (
+  p_apellido IN Huespedes.Apellido%TYPE
+) AS
+  CURSOR c_huespedes IS
+    SELECT HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    FROM Huespedes
+    WHERE Apellido = p_apellido;
+  
+  r_huespedes c_huespedes%ROWTYPE;
+BEGIN
+  OPEN c_huespedes;
+  
+  LOOP
+    FETCH c_huespedes INTO r_huespedes;
+    EXIT WHEN c_huespedes%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_huespedes.HuespedID || ', Nombre: ' || r_huespedes.Nombre || ', Apellido: ' || r_huespedes.Apellido);
+  END LOOP;
+  
+  CLOSE c_huespedes;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_HUESPEDES;
+/
+
+--selecciona las reservas que hay de la habitacion que queramos
+CREATE OR REPLACE PROCEDURE CURSOR_RESERVAS (
+  p_habitacionid IN Reservas.HabitacionID%TYPE
+) AS
+  CURSOR c_reservas IS
+    SELECT ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado
+    FROM Reservas
+    WHERE HabitacionID = p_habitacionid;
+  
+  r_reservas c_reservas%ROWTYPE;
+BEGIN
+  OPEN c_reservas;
+  
+  LOOP
+    FETCH c_reservas INTO r_reservas;
+    EXIT WHEN c_reservas%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_reservas.ReservaID || ', HuespedID: ' || r_reservas.HuespedID || ', Fecha Entrada: ' || r_reservas.FechaEntrada || ', Fecha Salida: ' || r_reservas.FechaSalida || ', Estado: ' || r_reservas.Estado);
+  END LOOP;
+  
+  CLOSE c_reservas;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_RESERVAS;
+/
+
+--todos los productos del invt con una cantidad de stock menor al valor que ocupemos
+CREATE OR REPLACE PROCEDURE CURSOR_INVENTARIOS (
+  p_cantidad_minima IN Inventarios.CantidadTotal%TYPE
+) AS
+  CURSOR c_inventarios IS
+    SELECT InventarioID, NombreProducto, CantidadTotal, UnidadMedida
+    FROM Inventarios
+    WHERE CantidadTotal < p_cantidad_minima;
+  
+  r_inventarios c_inventarios%ROWTYPE;
+BEGIN
+  OPEN c_inventarios;
+  
+  LOOP
+    FETCH c_inventarios INTO r_inventarios;
+    EXIT WHEN c_inventarios%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_inventarios.InventarioID || ', Producto: ' || r_inventarios.NombreProducto || ', Cantidad: ' || r_inventarios.CantidadTotal || ', Unidad: ' || r_inventarios.UnidadMedida);
+  END LOOP;
+  
+  CLOSE c_inventarios;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_INVENTARIOS;
+/
+
+CREATE OR REPLACE PROCEDURE CURSOR_EMPLEADOS (
+  p_puesto IN Empleados.Puesto%TYPE
+) AS
+  CURSOR c_empleados IS
+    SELECT EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario
+    FROM Empleados
+    WHERE Puesto = p_puesto;
+  
+  r_empleados c_empleados%ROWTYPE;
+BEGIN
+  OPEN c_empleados;
+  
+  LOOP
+    FETCH c_empleados INTO r_empleados;
+    EXIT WHEN c_empleados%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_empleados.EmpleadoID || ', Nombre: ' || r_empleados.Nombre || ', Puesto: ' || r_empleados.Puesto);
+  END LOOP;
+  
+  CLOSE c_empleados;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_EMPLEADOS;
+/
+
+
+CREATE OR REPLACE PROCEDURE CURSOR_HABITACIONES (
+  p_estado IN Habitaciones.Estado%TYPE
+) AS
+  CURSOR c_habitaciones IS
+    SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado
+    FROM Habitaciones
+    WHERE Estado = p_estado;
+  
+  r_habitaciones c_habitaciones%ROWTYPE;
+BEGIN
+  OPEN c_habitaciones;
+  
+  LOOP
+    FETCH c_habitaciones INTO r_habitaciones;
+    EXIT WHEN c_habitaciones%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_habitaciones.HabitacionID || ', Numero: ' || r_habitaciones.NumeroHabitacion || ', Estado: ' || r_habitaciones.Estado);
+  END LOOP;
+  
+  CLOSE c_habitaciones;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_HABITACIONES;
+/
+
+CREATE OR REPLACE PROCEDURE CURSOR_SERVICIOS (
+  p_nombre_servicio IN Servicios.NombreServicio%TYPE
+) AS
+  CURSOR c_servicios IS
+    SELECT ServicioID, NombreServicio, Descripcion, Precio
+    FROM Servicios
+    WHERE NombreServicio = p_nombre_servicio;
+  
+  r_servicios c_servicios%ROWTYPE;
+BEGIN
+  OPEN c_servicios;
+  
+  LOOP
+    FETCH c_servicios INTO r_servicios;
+    EXIT WHEN c_servicios%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_servicios.ServicioID || ', Nombre: ' || r_servicios.NombreServicio || ', Precio: ' || r_servicios.Precio);
+  END LOOP;
+  
+  CLOSE c_servicios;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_SERVICIOS;
+/
+
+CREATE OR REPLACE PROCEDURE CURSOR_FACTURAS (
+  p_fecha_factura IN Facturacion.FechaFactura%TYPE
+) AS
+  CURSOR c_facturas IS
+    SELECT FacturaID, ReservaID, FechaFactura, Total
+    FROM Facturacion
+    WHERE FechaFactura = p_fecha_factura;
+  
+  r_facturas c_facturas%ROWTYPE;
+BEGIN
+  OPEN c_facturas;
+  
+  LOOP
+    FETCH c_facturas INTO r_facturas;
+    EXIT WHEN c_facturas%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_facturas.FacturaID || ', ReservaID: ' || r_facturas.ReservaID || ', Total: ' || r_facturas.Total);
+  END LOOP;
+  
+  CLOSE c_facturas;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_FACTURAS;
+/
+
+CREATE OR REPLACE PROCEDURE CURSOR_CANTIDAD_INVENTARIO_POR_HABITACION (
+  p_habitacionid IN CantidadInventarioPorHabitacion.HabitacionID%TYPE
+) AS
+  CURSOR c_cantidad_inventario IS
+    SELECT HabitacionID, InventarioID, Cantidad
+    FROM CantidadInventarioPorHabitacion
+    WHERE HabitacionID = p_habitacionid;
+  
+  r_cantidad_inventario c_cantidad_inventario%ROWTYPE;
+BEGIN
+  OPEN c_cantidad_inventario;
+  
+  LOOP
+    FETCH c_cantidad_inventario INTO r_cantidad_inventario;
+    EXIT WHEN c_cantidad_inventario%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('HabitacionID: ' || r_cantidad_inventario.HabitacionID || ', InventarioID: ' || r_cantidad_inventario.InventarioID || ', Cantidad: ' || r_cantidad_inventario.Cantidad);
+  END LOOP;
+  
+  CLOSE c_cantidad_inventario;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_CANTIDAD_INVENTARIO_POR_HABITACION;
+/
+
+CREATE OR REPLACE PROCEDURE CURSOR_MANTENIMIENTO (
+  p_habitacionid IN Mantenimiento.HabitacionID%TYPE
+) AS
+  CURSOR c_mantenimiento IS
+    SELECT MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo
+    FROM Mantenimiento
+    WHERE HabitacionID = p_habitacionid;
+  
+  r_mantenimiento c_mantenimiento%ROWTYPE;
+BEGIN
+  OPEN c_mantenimiento;
+  
+  LOOP
+    FETCH c_mantenimiento INTO r_mantenimiento;
+    EXIT WHEN c_mantenimiento%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_mantenimiento.MantenimientoID || ', HabitacionID: ' || r_mantenimiento.HabitacionID || ', Fecha: ' || r_mantenimiento.FechaMantenimiento || ', Costo: ' || r_mantenimiento.Costo);
+  END LOOP;
+  
+  CLOSE c_mantenimiento;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_MANTENIMIENTO;
+/
+
+--VER HUESPEDES POR FECHA DE NAC
+CREATE OR REPLACE PROCEDURE CURSOR_HUESPEDES_FECHA (
+  p_fecha_nacimiento IN Huespedes.FechaNacimiento%TYPE
+) AS
+  CURSOR c_huespedes IS
+    SELECT HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    FROM Huespedes
+    WHERE FechaNacimiento = p_fecha_nacimiento;
+  
+  r_huespedes c_huespedes%ROWTYPE;
+BEGIN
+  OPEN c_huespedes;
+  
+  LOOP
+    FETCH c_huespedes INTO r_huespedes;
+    EXIT WHEN c_huespedes%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_huespedes.HuespedID || ', Nombre: ' || r_huespedes.Nombre || ', Apellido: ' || r_huespedes.Apellido);
+  END LOOP;
+  
+  CLOSE c_huespedes;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_HUESPEDES_FECHA;
+/
+--EMPLEADOS POR FECHA DE CONTRATACION
+CREATE OR REPLACE PROCEDURE CURSOR_EMPLEADOS_FECHA (
+  p_fecha_contratacion IN Empleados.FechaContratacion%TYPE
+) AS
+  CURSOR c_empleados IS
+    SELECT EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario
+    FROM Empleados
+    WHERE FechaContratacion = p_fecha_contratacion;
+  
+  r_empleados c_empleados%ROWTYPE;
+BEGIN
+  OPEN c_empleados;
+  
+  LOOP
+    FETCH c_empleados INTO r_empleados;
+    EXIT WHEN c_empleados%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_empleados.EmpleadoID || ', Nombre: ' || r_empleados.Nombre || ', Puesto: ' || r_empleados.Puesto);
+  END LOOP;
+  
+  CLOSE c_empleados;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_EMPLEADOS_FECHA;
+/
+
+--POR TIPO DE HAB
+CREATE OR REPLACE PROCEDURE CURSOR_HABITACIONES_TIPO (
+  p_tipo_habitacion IN Habitaciones.TipoHabitacion%TYPE
+) AS
+  CURSOR c_habitaciones IS
+    SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado
+    FROM Habitaciones
+    WHERE TipoHabitacion = p_tipo_habitacion;
+  
+  r_habitaciones c_habitaciones%ROWTYPE;
+BEGIN
+  OPEN c_habitaciones;
+  
+  LOOP
+    FETCH c_habitaciones INTO r_habitaciones;
+    EXIT WHEN c_habitaciones%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_habitaciones.HabitacionID || ', Numero: ' || r_habitaciones.NumeroHabitacion || ', Tipo: ' || r_habitaciones.TipoHabitacion);
+  END LOOP;
+  
+  CLOSE c_habitaciones;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_HABITACIONES_TIPO;
+/
+
+--SERV POR EL PRECIO
+CREATE OR REPLACE PROCEDURE CURSOR_SERVICIOS_PRECIO (
+  p_precio IN Servicios.Precio%TYPE
+) AS
+  CURSOR c_servicios IS
+    SELECT ServicioID, NombreServicio, Descripcion, Precio
+    FROM Servicios
+    WHERE Precio = p_precio;
+  
+  r_servicios c_servicios%ROWTYPE;
+BEGIN
+  OPEN c_servicios;
+  
+  LOOP
+    FETCH c_servicios INTO r_servicios;
+    EXIT WHEN c_servicios%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_servicios.ServicioID || ', Nombre: ' || r_servicios.NombreServicio || ', Precio: ' || r_servicios.Precio);
+  END LOOP;
+  
+  CLOSE c_servicios;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_SERVICIOS_PRECIO;
+/
+
+--FACT POR EL TOTAL
+CREATE OR REPLACE PROCEDURE CURSOR_FACTURAS_TOTAL (
+  p_total IN Facturacion.Total%TYPE
+) AS
+  CURSOR c_facturas IS
+    SELECT FacturaID, ReservaID, FechaFactura, Total
+    FROM Facturacion
+    WHERE Total = p_total;
+  
+  r_facturas c_facturas%ROWTYPE;
+BEGIN
+  OPEN c_facturas;
+  
+  LOOP
+    FETCH c_facturas INTO r_facturas;
+    EXIT WHEN c_facturas%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || r_facturas.FacturaID || ', ReservaID: ' || r_facturas.ReservaID || ', Total: ' || r_facturas.Total);
+  END LOOP;
+  
+  CLOSE c_facturas;
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END CURSOR_FACTURAS_TOTAL;
+/
