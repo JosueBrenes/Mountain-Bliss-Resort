@@ -837,7 +837,144 @@ EXCEPTION
 END ELIMINAR_PROVEEDOR;
 /
 
+------------------------------------------------------------------------------
 
+
+--FUNCIONES-------------
+
+CREATE OR REPLACE FUNCTION LISTA_EMPLEADOS_CON_PUESTO (
+    p_puesto IN VARCHAR2
+) RETURN SYS_REFCURSOR
+IS
+    c_empleados SYS_REFCURSOR;
+BEGIN
+    OPEN c_empleados FOR
+        SELECT EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario
+        FROM Empleados
+        WHERE Puesto = p_puesto;
+
+    RETURN c_empleados;
+END;
+/
+
+---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION LISTA_HUESPEDES_ORDENADOS
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Huespedes
+        ORDER BY Nombre ASC;
+    RETURN resultado;
+END;
+/
+
+----------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION FILTRAR_HABITACIONES_POR_ESTADO(p_estado IN VARCHAR2)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Habitaciones
+        WHERE Estado = p_estado;
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_INVENTARIO_POR_CANTIDAD(min_cantidad IN NUMBER, max_cantidad IN NUMBER)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Inventarios
+        WHERE CantidadTotal BETWEEN min_cantidad AND max_cantidad;
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_MANTENIMIENTO_POR_COSTO(min_costo IN NUMBER, max_costo IN NUMBER)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Mantenimiento
+        WHERE Costo BETWEEN min_costo AND max_costo;
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_PROVEEDORES_POR_NOMBRE(nombre_busqueda IN VARCHAR2)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Proveedores
+        WHERE Nombre LIKE '%' || nombre_busqueda || '%';
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_RESERVAS_POR_ESTADO(estado_busqueda IN VARCHAR2)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Reservas
+        WHERE Estado = estado_busqueda;
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_FACTURACION_POR_FECHA(
+    fecha_inicio IN DATE,
+    fecha_fin IN DATE
+)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Facturacion
+        WHERE FechaFactura BETWEEN fecha_inicio AND fecha_fin;
+    RETURN resultado;
+END;
+/
+
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION REPORTAR_SERVICIOS_POR_PRECIO(
+    precio_minimo IN NUMBER,
+    precio_maximo IN NUMBER
+)
+RETURN SYS_REFCURSOR
+IS
+    resultado SYS_REFCURSOR;
+BEGIN
+    OPEN resultado FOR
+        SELECT * FROM Servicios
+        WHERE Precio BETWEEN precio_minimo AND precio_maximo;
+    RETURN resultado;
+END;
+/
+----------------------------------------------------------------------------
 -- SECUENCIAS
 
 -- Secuencia para Huespedes
@@ -846,63 +983,63 @@ START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Empleados
 CREATE SEQUENCE Empleado_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Habitaciones
 CREATE SEQUENCE Habitacion_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Reservas
 CREATE SEQUENCE Reserva_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Servicios
 CREATE SEQUENCE Servicio_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Facturacion
 CREATE SEQUENCE Factura_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Inventarios
 CREATE SEQUENCE Inventario_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Mantenimiento
 CREATE SEQUENCE Mantenimiento_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 -- Secuencia para Proveedores
 CREATE SEQUENCE Proveedor_SEQ
 START WITH 1
 INCREMENT BY 1
 NOCACHE
 NOCYCLE;
-
+/
 
 --CURSORES
 CREATE OR REPLACE PROCEDURE CURSOR_HUESPEDES (
@@ -1261,3 +1398,542 @@ EXCEPTION
     DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
 END CURSOR_FACTURAS_TOTAL;
 /
+
+---------------------------------------------------------------------------------
+--PAQUETES--
+
+-- Paquete 1: Huespedes
+CREATE OR REPLACE PACKAGE HUESPED_MAN AS
+  -- Constantes para los estados
+  ESTADO_ACTIVO CONSTANT VARCHAR2(10) := 'Activo';
+  ESTADO_INACTIVO CONSTANT VARCHAR2(10) := 'Inactivo';
+
+  -- Obtenemos aca los datos del huesped
+  CURSOR CUR_HUESPED(P_HUESPED_ID NUMBER) IS
+    SELECT Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
+    FROM Huespedes
+    WHERE HuespedID = P_HUESPED_ID;
+
+  -- Función para obtener la edad del huésped
+  FUNCTION OBTENER_EDAD(P_HUESPED_ID NUMBER) RETURN NUMBER;
+  
+  -- Función para obtener el total de huéspedes activos
+  FUNCTION TOTAL_HUESPEDES_ACTIVOS RETURN NUMBER;
+END HUESPED_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY HUESPED_MAN AS
+  FUNCTION OBTENER_EDAD(P_HUESPED_ID NUMBER) RETURN NUMBER
+  AS
+    V_FECHA_NACIMIENTO DATE;
+    V_EDAD NUMBER;
+  BEGIN
+    SELECT FechaNacimiento INTO V_FECHA_NACIMIENTO
+    FROM Huespedes
+    WHERE HuespedID = P_HUESPED_ID;
+
+    V_EDAD := FLOOR(MONTHS_BETWEEN(SYSDATE, V_FECHA_NACIMIENTO) / 12);
+    RETURN V_EDAD;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END OBTENER_EDAD;
+
+  FUNCTION TOTAL_HUESPEDES_ACTIVOS RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO V_TOTAL
+    FROM Huespedes;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END TOTAL_HUESPEDES_ACTIVOS;
+END HUESPED_MAN;
+/
+
+-- Paquete 2: Empleados
+CREATE OR REPLACE PACKAGE EMPLEADO_MAN AS
+  -- Constantes DE los puestos
+  PUESTO_MANAGER CONSTANT VARCHAR2(20) := 'Manager';
+  PUESTO_CLERK CONSTANT VARCHAR2(20) := 'Clerk';
+
+  -- Cursor para obtener datos del empleado
+  CURSOR CUR_EMPLEADO(P_EMPLEADO_ID NUMBER) IS
+    SELECT Nombre, Apellido, Puesto, FechaContratacion, Salario
+    FROM Empleados
+    WHERE EmpleadoID = P_EMPLEADO_ID;
+
+  -- CON ESTA FUNCION PODEMOS VER EL SALARIO TOTAL  
+  FUNCTION SALARIO_TOTAL RETURN NUMBER;
+
+  -- CON ESTA FUNCION PODEMOS OBTENER EL PROMEDIO DE UN PUESTO  
+  FUNCTION SALARIO_PROMEDIO(P_PUESTO VARCHAR2) RETURN NUMBER;
+END EMPLEADO_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY EMPLEADO_MAN AS
+  FUNCTION SALARIO_TOTAL RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT SUM(Salario) INTO V_TOTAL
+    FROM Empleados;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END SALARIO_TOTAL;
+
+  FUNCTION SALARIO_PROMEDIO(P_PUESTO VARCHAR2) RETURN NUMBER
+  AS
+    V_PROMEDIO NUMBER;
+  BEGIN
+    SELECT AVG(Salario) INTO V_PROMEDIO
+    FROM Empleados
+    WHERE Puesto = P_PUESTO;
+
+    RETURN V_PROMEDIO;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('No se encontraron datos.');
+      RETURN NULL;
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END SALARIO_PROMEDIO;
+END EMPLEADO_MAN;
+/
+
+-- Paquete 3: Reservas
+CREATE OR REPLACE PACKAGE RESERVA_MAN AS
+  -- Constantes de los estados de reserva
+  ESTADO_CONFIRMADO CONSTANT VARCHAR2(20) := 'Confirmada';
+  ESTADO_CANCELADA CONSTANT VARCHAR2(20) := 'Cancelada';
+
+  -- Cursor para obtener  los detalles de una reserva
+  CURSOR CUR_RESERVA(P_RESERVA_ID NUMBER) IS
+    SELECT HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado
+    FROM Reservas
+    WHERE ReservaID = P_RESERVA_ID;
+
+  -- obtenemos el número de reservas activas
+  FUNCTION NUMERO_RESERVAS_ACTIVAS RETURN NUMBER;
+  
+  -- Función para obtener la fecha de salida de una reserva
+  FUNCTION FECHA_SALIDA(P_RESERVA_ID NUMBER) RETURN DATE;
+END RESERVA_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY RESERVA_MAN AS
+  FUNCTION NUMERO_RESERVAS_ACTIVAS RETURN NUMBER
+  AS
+    V_NUMERO NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO V_NUMERO
+    FROM Reservas
+    WHERE Estado = ESTADO_CONFIRMADO;
+
+    RETURN V_NUMERO;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END NUMERO_RESERVAS_ACTIVAS;
+
+  FUNCTION FECHA_SALIDA(P_RESERVA_ID NUMBER) RETURN DATE
+  AS
+    V_FECHA_SALIDA DATE;
+  BEGIN
+    SELECT FechaSalida INTO V_FECHA_SALIDA
+    FROM Reservas
+    WHERE ReservaID = P_RESERVA_ID;
+
+    RETURN V_FECHA_SALIDA;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('Reserva no encontrada.');
+      RETURN NULL;
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END FECHA_SALIDA;
+END RESERVA_MAN;
+/
+
+-- Paquete 4: Habitaciones
+CREATE OR REPLACE PACKAGE HABITACION_MAN AS
+  -- Constantes 
+  ESTADO_DISPONIBLE CONSTANT VARCHAR2(20) := 'Disponible';
+  ESTADO_OCUPADA CONSTANT VARCHAR2(20) := 'Ocupada';
+
+  -- Cursor para obtener detalles de una habitación
+  CURSOR CUR_HABITACION(P_HABITACION_ID NUMBER) IS
+    SELECT NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado
+    FROM Habitaciones
+    WHERE HabitacionID = P_HABITACION_ID;
+
+  -- Función para obtener el precio total de todas las habitaciones
+  FUNCTION PRECIO_TOTAL RETURN NUMBER;
+
+  -- Función para obtener el número de habitaciones disponibles
+  FUNCTION NUMERO_HABITACIONES_DISPONIBLES RETURN NUMBER;
+END HABITACION_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY HABITACION_MAN AS
+  FUNCTION PRECIO_TOTAL RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT SUM(PrecioPorNoche) INTO V_TOTAL
+    FROM Habitaciones;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END PRECIO_TOTAL;
+
+  FUNCTION NUMERO_HABITACIONES_DISPONIBLES RETURN NUMBER
+  AS
+    V_NUMERO NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO V_NUMERO
+    FROM Habitaciones
+    WHERE Estado = ESTADO_DISPONIBLE;
+
+    RETURN V_NUMERO;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END NUMERO_HABITACIONES_DISPONIBLES;
+END HABITACION_MAN;
+/
+
+-- Paquete 5: Servicios
+CREATE OR REPLACE PACKAGE SERVICIO_MAN AS
+  -- Cursor para obtener detalles de un servicio
+  CURSOR CUR_SERVICIO(P_SERVICIO_ID NUMBER) IS
+    SELECT NombreServicio, Descripcion, Precio
+    FROM Servicios
+    WHERE ServicioID = P_SERVICIO_ID;
+
+  -- Función para obtener el costo total de todos los servicios
+  FUNCTION COSTO_TOTAL RETURN NUMBER;
+
+  -- Función para obtener el servicio más caro
+  FUNCTION SERVICIO_MAS_CARO RETURN VARCHAR2;
+END SERVICIO_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY SERVICIO_MAN AS
+  FUNCTION COSTO_TOTAL RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT SUM(Precio) INTO V_TOTAL
+    FROM Servicios;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END COSTO_TOTAL;
+
+  FUNCTION SERVICIO_MAS_CARO RETURN VARCHAR2
+  AS
+    V_SERVICIO VARCHAR2(100);
+  BEGIN
+    SELECT NombreServicio INTO V_SERVICIO
+    FROM Servicios
+    WHERE Precio = (SELECT MAX(Precio) FROM Servicios);
+
+    RETURN V_SERVICIO;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('No se encontraron servicios.');
+      RETURN NULL;
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END SERVICIO_MAS_CARO;
+END SERVICIO_MAN;
+/
+
+-- Paquete 6: Facturación
+CREATE OR REPLACE PACKAGE FACTURACION_MAN AS
+  -- Cursor para obtener detalles de una factura
+  CURSOR CUR_FACTURA(P_FACTURA_ID NUMBER) IS
+    SELECT ReservaID, FechaFactura, Total
+    FROM Facturacion
+    WHERE FacturaID = P_FACTURA_ID;
+
+  -- Función para obtener el total de facturación
+  FUNCTION TOTAL_FACTURACION RETURN NUMBER;
+
+  -- Función para obtener la última factura
+  FUNCTION ULTIMA_FACTURA RETURN NUMBER;
+END FACTURACION_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY FACTURACION_MAN AS
+  FUNCTION TOTAL_FACTURACION RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT SUM(Total) INTO V_TOTAL
+    FROM Facturacion;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END TOTAL_FACTURACION;
+
+  FUNCTION ULTIMA_FACTURA RETURN NUMBER
+  AS
+    V_FACTURA_ID NUMBER;
+  BEGIN
+    SELECT MAX(FacturaID) INTO V_FACTURA_ID
+    FROM Facturacion;
+
+    RETURN V_FACTURA_ID;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END ULTIMA_FACTURA;
+END FACTURACION_MAN;
+/
+
+-- Paquete 7: Proveedores
+CREATE OR REPLACE PACKAGE PROVEEDOR_MAN AS
+  -- Cursor para obtener detalles de un proveedor
+  CURSOR CUR_PROVEEDOR(P_PROVEEDOR_ID NUMBER) IS
+    SELECT Nombre, Direccion, Telefono, Email
+    FROM Proveedores
+    WHERE ProveedorID = P_PROVEEDOR_ID;
+
+  -- Función para obtener el número total de proveedores
+  FUNCTION TOTAL_PROVEEDORES RETURN NUMBER;
+
+  -- Función para obtener el proveedor con el mayor ID
+  FUNCTION PROVEEDOR_MAYOR_ID RETURN NUMBER;
+END PROVEEDOR_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY PROVEEDOR_MAN AS
+  FUNCTION TOTAL_PROVEEDORES RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT COUNT(*) INTO V_TOTAL
+    FROM Proveedores;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END TOTAL_PROVEEDORES;
+
+  FUNCTION PROVEEDOR_MAYOR_ID RETURN NUMBER
+  AS
+    V_ID NUMBER;
+  BEGIN
+    SELECT MAX(ProveedorID) INTO V_ID
+    FROM Proveedores;
+
+    RETURN V_ID;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END PROVEEDOR_MAYOR_ID;
+END PROVEEDOR_MAN;
+/
+
+-- Paquete 8: Mantenimiento
+CREATE OR REPLACE PACKAGE MANTENIMIENTO_MAN AS
+  -- Cursor para obtener detalles de mantenimiento
+  CURSOR CUR_MANTENIMIENTO(P_MANTENIMIENTO_ID NUMBER) IS
+    SELECT HabitacionID, FechaMantenimiento, Descripcion, Costo
+    FROM Mantenimiento
+    WHERE MantenimientoID = P_MANTENIMIENTO_ID;
+
+  -- Función para obtener el costo total de mantenimiento
+  FUNCTION COSTO_TOTAL_MANTENIMIENTO RETURN NUMBER;
+
+  -- Función para obtener el mantenimiento más reciente
+  FUNCTION MANTENIMIENTO_MAS_RECIENTE RETURN DATE;
+END MANTENIMIENTO_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY MANTENIMIENTO_MAN AS
+  FUNCTION COSTO_TOTAL_MANTENIMIENTO RETURN NUMBER
+  AS
+    V_TOTAL NUMBER;
+  BEGIN
+    SELECT SUM(Costo) INTO V_TOTAL
+    FROM Mantenimiento;
+
+    RETURN V_TOTAL;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END COSTO_TOTAL_MANTENIMIENTO;
+
+  FUNCTION MANTENIMIENTO_MAS_RECIENTE RETURN DATE
+  AS
+    V_FECHA DATE;
+  BEGIN
+    SELECT MAX(FechaMantenimiento) INTO V_FECHA
+    FROM Mantenimiento;
+
+    RETURN V_FECHA;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('No se encontraron mantenimientos.');
+      RETURN NULL;
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END MANTENIMIENTO_MAS_RECIENTE;
+END MANTENIMIENTO_MAN;
+/
+
+-- Paquete 9: Inventarios
+CREATE OR REPLACE PACKAGE INVENTARIO_MAN AS
+  -- Cursor para obtener detalles del inventario
+  CURSOR CUR_INVENTARIO(P_INVENTARIO_ID NUMBER) IS
+    SELECT NombreProducto, CantidadTotal, UnidadMedida
+    FROM Inventarios
+    WHERE InventarioID = P_INVENTARIO_ID;
+
+  -- Función para obtener la cantidad total de inventario
+  FUNCTION CANTIDAD_TOTAL RETURN NUMBER;
+
+  -- Función para obtener el inventario con el menor ID
+  FUNCTION INVENTARIO_MENOR_ID RETURN NUMBER;
+END INVENTARIO_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY INVENTARIO_MAN AS
+  FUNCTION CANTIDAD_TOTAL RETURN NUMBER
+  AS
+    V_CANTIDAD NUMBER;
+  BEGIN
+    SELECT SUM(CantidadTotal) INTO V_CANTIDAD
+    FROM Inventarios;
+
+    RETURN V_CANTIDAD;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END CANTIDAD_TOTAL;
+
+  FUNCTION INVENTARIO_MENOR_ID RETURN NUMBER
+  AS
+    V_ID NUMBER;
+  BEGIN
+    SELECT MIN(InventarioID) INTO V_ID
+    FROM Inventarios;
+
+    RETURN V_ID;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END INVENTARIO_MENOR_ID;
+END INVENTARIO_MAN;
+/
+
+-- Paquete 10: CantidadInventarioPorHabitacion
+CREATE OR REPLACE PACKAGE CANTIDAD_INVENTARIO_HABITACION_MAN AS
+  -- Cursor para obtener detalles de cantidad de inventario por habitación
+  CURSOR CUR_CANTIDAD_INVENTARIO_HABITACION(P_HABITACION_ID NUMBER, P_INVENTARIO_ID NUMBER) IS
+    SELECT Cantidad
+    FROM CantidadInventarioPorHabitacion
+    WHERE HabitacionID = P_HABITACION_ID
+    AND InventarioID = P_INVENTARIO_ID;
+
+  -- Función para obtener la cantidad total de inventario en una habitación
+  FUNCTION CANTIDAD_TOTAL_EN_HABITACION(P_HABITACION_ID NUMBER) RETURN NUMBER;
+
+  -- Función para obtener el inventario con mayor cantidad en una habitación
+  FUNCTION INVENTARIO_MAYOR_CANTIDAD(P_HABITACION_ID NUMBER) RETURN NUMBER;
+END CANTIDAD_INVENTARIO_HABITACION_MAN;
+/
+
+CREATE OR REPLACE PACKAGE BODY CANTIDAD_INVENTARIO_HABITACION_MAN AS
+  FUNCTION CANTIDAD_TOTAL_EN_HABITACION(P_HABITACION_ID NUMBER) RETURN NUMBER
+  AS
+    V_CANTIDAD NUMBER;
+  BEGIN
+    SELECT SUM(Cantidad) INTO V_CANTIDAD
+    FROM CantidadInventarioPorHabitacion
+    WHERE HabitacionID = P_HABITACION_ID;
+
+    RETURN V_CANTIDAD;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END CANTIDAD_TOTAL_EN_HABITACION;
+
+  FUNCTION INVENTARIO_MAYOR_CANTIDAD(P_HABITACION_ID NUMBER) RETURN NUMBER
+  AS
+    V_INVENTARIO_ID NUMBER;
+  BEGIN
+    SELECT InventarioID INTO V_INVENTARIO_ID
+    FROM CantidadInventarioPorHabitacion
+    WHERE HabitacionID = P_HABITACION_ID
+    ORDER BY Cantidad DESC
+    FETCH FIRST 1 ROW ONLY;
+
+    RETURN V_INVENTARIO_ID;
+
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('No se encontraron datos.');
+      RETURN NULL;
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE(SQLERRM);
+      RETURN NULL;
+  END INVENTARIO_MAYOR_CANTIDAD;
+END CANTIDAD_INVENTARIO_HABITACION_MAN;
+/
+
+-----------------------------------------------------------------------------------------------
