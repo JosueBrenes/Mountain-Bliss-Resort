@@ -364,299 +364,489 @@ JOIN
 
 
 --PROCEDIMIENTOS
---actualizar el precio de la habitacion
-CREATE OR REPLACE PROCEDURE UPDATE_ROOM_PRICE (
-    ROOM_TYPE IN VARCHAR2,
-    NEW_PRICE IN NUMBER
+
+
+CREATE OR REPLACE PROCEDURE INSERTAR_HUESPED (
+  P_HUESPEDID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_APELLIDO VARCHAR2,
+  P_FECHA_NACIMIENTO DATE,
+  P_DIRECCION VARCHAR2,
+  P_TELEFONO VARCHAR2,
+  P_EMAIL VARCHAR2
 ) AS
 BEGIN
-    UPDATE Habitaciones
-    SET PrecioPorNoche = NEW_PRICE
-    WHERE TipoHabitacion = ROOM_TYPE;
+  INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email)
+  VALUES (P_HUESPEDID, P_NOMBRE, P_APELLIDO, P_FECHA_NACIMIENTO, P_DIRECCION, P_TELEFONO, P_EMAIL);
 END;
 /
 
-CREATE OR REPLACE PROCEDURE LISTAR_HABITACIONES_DISPONIBLES (
-    p_fecha_inicio IN DATE,
-    p_fecha_fin IN DATE
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_EMPLEADO (
+  P_EMPLEADOID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_APELLIDO VARCHAR2,
+  P_PUESTO VARCHAR2,
+  P_FECHA_CONTRATACION DATE,
+  P_SALARIO NUMBER
 ) AS
 BEGIN
-    FOR rec IN (
-        SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
-        FROM Habitaciones
-        WHERE HabitacionID NOT IN (
-            SELECT HabitacionID
-            FROM Reservas
-            WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
-               OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
-               OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
-               OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
-        )
-        AND Estado = 'Disponible'
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('HabitacionID: ' || rec.HabitacionID);
-        DBMS_OUTPUT.PUT_LINE('NumeroHabitacion: ' || rec.NumeroHabitacion);
-        DBMS_OUTPUT.PUT_LINE('TipoHabitacion: ' || rec.TipoHabitacion);
-        DBMS_OUTPUT.PUT_LINE('PrecioPorNoche: ' || rec.PrecioPorNoche);
-    END LOOP;
+  INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario)
+  VALUES (P_EMPLEADOID, P_NOMBRE, P_APELLIDO, P_PUESTO, P_FECHA_CONTRATACION, P_SALARIO);
 END;
 /
--- calcular precio de la reserva
 
-CREATE OR REPLACE PROCEDURE CALCULAR_PRECIO_RESERVA (
-    p_reserva_id IN Reservas.ReservaID%TYPE,
-    p_costo_total OUT NUMBER
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_RESERVA (
+  P_RESERVAID NUMBER,
+  P_HUESPEDID NUMBER,
+  P_HABITACIONID NUMBER,
+  P_FECHA_ENTRADA DATE,
+  P_FECHA_SALIDA DATE,
+  P_ESTADO VARCHAR2
 ) AS
 BEGIN
-    SELECT SUM(PrecioPorNoche * (FechaSalida - FechaEntrada))
-    INTO p_costo_total
-    FROM Reservas R
-    JOIN Habitaciones H ON R.HabitacionID = H.HabitacionID
-    WHERE R.ReservaID = p_reserva_id;
+  INSERT INTO Reservas (ReservaID, HuespedID, HabitacionID, FechaEntrada, FechaSalida, Estado)
+  VALUES (P_RESERVAID, P_HUESPEDID, P_HABITACIONID, P_FECHA_ENTRADA, P_FECHA_SALIDA, P_ESTADO);
 END;
 /
 
+-----------------------------------------------------------------
 
--- ver cuartos disponibles para una fecha esp.
-CREATE OR REPLACE PROCEDURE LISTAR_HABITACIONES_DISPONIBLES (
-    p_fecha_inicio IN DATE,
-    p_fecha_fin IN DATE
+CREATE OR REPLACE PROCEDURE INSERTAR_HABITACION (
+  P_HABITACIONID NUMBER,
+  P_NUMERO_HABITACION VARCHAR2,
+  P_TIPO_HABITACION VARCHAR2,
+  P_PRECIO_POR_NOCHE NUMBER,
+  P_ESTADO VARCHAR2
 ) AS
 BEGIN
-    FOR rec IN (
-        SELECT HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche
-        FROM Habitaciones
-        WHERE HabitacionID NOT IN (
-            SELECT HabitacionID
-            FROM Reservas
-            WHERE (FechaEntrada BETWEEN p_fecha_inicio AND p_fecha_fin)
-               OR (FechaSalida BETWEEN p_fecha_inicio AND p_fecha_fin)
-               OR (p_fecha_inicio BETWEEN FechaEntrada AND FechaSalida)
-               OR (p_fecha_fin BETWEEN FechaEntrada AND FechaSalida)
-        )
-        AND Estado = 'Disponible'
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('HabitacionID: ' || rec.HabitacionID);
-        DBMS_OUTPUT.PUT_LINE('NumeroHabitacion: ' || rec.NumeroHabitacion);
-        DBMS_OUTPUT.PUT_LINE('TipoHabitacion: ' || rec.TipoHabitacion);
-        DBMS_OUTPUT.PUT_LINE('PrecioPorNoche: ' || rec.PrecioPorNoche);
-    END LOOP;
+  INSERT INTO Habitaciones (HabitacionID, NumeroHabitacion, TipoHabitacion, PrecioPorNoche, Estado)
+  VALUES (P_HABITACIONID, P_NUMERO_HABITACION, P_TIPO_HABITACION, P_PRECIO_POR_NOCHE, P_ESTADO);
 END;
 /
 
+-----------------------------------------------------------------
 
--- ver info huesped por buscar id
-CREATE OR REPLACE PROCEDURE OBTENER_HUESPED_POR_RESERVA (
-    p_reserva_id IN Reservas.ReservaID%TYPE
-) AS
-    v_huesped_id Huespedes.HuespedID%TYPE;
-    v_nombre Huespedes.Nombre%TYPE;
-    v_apellido Huespedes.Apellido%TYPE;
-    v_fecha_nacimiento Huespedes.FechaNacimiento%TYPE;
-    v_direccion Huespedes.Direccion%TYPE;
-    v_telefono Huespedes.Telefono%TYPE;
-    v_email Huespedes.Email%TYPE;
-BEGIN
-    SELECT HuespedID
-    INTO v_huesped_id
-    FROM Reservas
-    WHERE ReservaID = p_reserva_id;
-
-    SELECT Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email
-    INTO v_nombre, v_apellido, v_fecha_nacimiento, v_direccion, v_telefono, v_email
-    FROM Huespedes
-    WHERE HuespedID = v_huesped_id;
-
-    DBMS_OUTPUT.PUT_LINE('HuespedID: ' || v_huesped_id);
-    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_nombre);
-    DBMS_OUTPUT.PUT_LINE('Apellido: ' || v_apellido);
-    DBMS_OUTPUT.PUT_LINE('FechaNacimiento: ' || v_fecha_nacimiento);
-    DBMS_OUTPUT.PUT_LINE('Direccion: ' || v_direccion);
-    DBMS_OUTPUT.PUT_LINE('Telefono: ' || v_telefono);
-    DBMS_OUTPUT.PUT_LINE('Email: ' || v_email);
-END;
-/
-BEGIN
-    OBTENER_HUESPED_POR_RESERVA(1); 
-END;
-/
--- cambiar de cuarto calcular precios
-
-CREATE OR REPLACE PROCEDURE ACTUALIZAR_PRECIO_HABITACION (
-    p_tipo_habitacion IN Habitaciones.TipoHabitacion%TYPE,
-    p_nuevo_precio IN Habitaciones.PrecioPorNoche%TYPE
+CREATE OR REPLACE PROCEDURE INSERTAR_SERVICIO (
+  P_SERVICIOID NUMBER,
+  P_NOMBRE_SERVICIO VARCHAR2,
+  P_DESCRIPCION VARCHAR2,
+  P_PRECIO NUMBER
 ) AS
 BEGIN
-    UPDATE Habitaciones
-    SET PrecioPorNoche = p_nuevo_precio
-    WHERE TipoHabitacion = p_tipo_habitacion;
+  INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio)
+  VALUES (P_SERVICIOID, P_NOMBRE_SERVICIO, P_DESCRIPCION, P_PRECIO);
+END;
+/
+
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_FACTURA (
+  P_FACTURAID NUMBER,
+  P_RESERVAID NUMBER,
+  P_FECHA_FACTURA DATE,
+  P_TOTAL NUMBER
+) AS
+BEGIN
+  INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
+  VALUES (P_FACTURAID, P_RESERVAID, P_FECHA_FACTURA, P_TOTAL);
+END;
+/
+
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_INVENTARIO (
+  P_INVENTARIOID NUMBER,
+  P_NOMBRE_PRODUCTO VARCHAR2,
+  P_CANTIDAD_TOTAL NUMBER,
+  P_UNIDAD_MEDIDA VARCHAR2
+) AS
+BEGIN
+  INSERT INTO Inventarios (InventarioID, NombreProducto, CantidadTotal, UnidadMedida)
+  VALUES (P_INVENTARIOID, P_NOMBRE_PRODUCTO, P_CANTIDAD_TOTAL, P_UNIDAD_MEDIDA);
+END;
+/
+
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_CANTIDAD_INVENTARIO_POR_HABITACION (
+  P_HABITACIONID NUMBER,
+  P_INVENTARIOID NUMBER,
+  P_CANTIDAD NUMBER
+) AS
+BEGIN
+  INSERT INTO CantidadInventarioPorHabitacion (HabitacionID, InventarioID, Cantidad)
+  VALUES (P_HABITACIONID, P_INVENTARIOID, P_CANTIDAD);
+END;
+/
+
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_MANTENIMIENTO (
+  P_MANTENIMIENTOID NUMBER,
+  P_HABITACIONID NUMBER,
+  P_FECHA_MANTENIMIENTO DATE,
+  P_DESCRIPCION VARCHAR2,
+  P_COSTO NUMBER
+) AS
+BEGIN
+  INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo)
+  VALUES (P_MANTENIMIENTOID, P_HABITACIONID, P_FECHA_MANTENIMIENTO, P_DESCRIPCION, P_COSTO);
+END;
+/
+
+-----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE INSERTAR_PROVEEDOR (
+  P_PROVEEDORID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_DIRECCION VARCHAR2,
+  P_TELEFONO VARCHAR2,
+  P_EMAIL VARCHAR2
+) AS
+BEGIN
+  INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email)
+  VALUES (P_PROVEEDORID, P_NOMBRE, P_DIRECCION, P_TELEFONO, P_EMAIL);
+END;
+/
+
+-------------------------------------------------------------------------------------
+--CRUD ACTUALIZAR
+-- para actualizar huesped
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_HUESPED (
+  P_HUESPEDID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_APELLIDO VARCHAR2,
+  P_FECHA_NACIMIENTO DATE,
+  P_DIRECCION VARCHAR2,
+  P_TELEFONO VARCHAR2,
+  P_EMAIL VARCHAR2
+) AS
+BEGIN
+  UPDATE Huespedes
+  SET
+    Nombre = P_NOMBRE,
+    Apellido = P_APELLIDO,
+    FechaNacimiento = P_FECHA_NACIMIENTO,
+    Direccion = P_DIRECCION,
+    Telefono = P_TELEFONO,
+    Email = P_EMAIL
+  WHERE HuespedID = P_HUESPEDID;
+END;
+/
+
+-- actuakizar empleado
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_EMPLEADO (
+  P_EMPLEADOID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_APELLIDO VARCHAR2,
+  P_PUESTO VARCHAR2,
+  P_FECHA_CONTRATACION DATE,
+  P_SALARIO NUMBER
+) AS
+BEGIN
+  UPDATE Empleados
+  SET
+    Nombre = P_NOMBRE,
+    Apellido = P_APELLIDO,
+    Puesto = P_PUESTO,
+    FechaContratacion = P_FECHA_CONTRATACION,
+    Salario = P_SALARIO
+  WHERE EmpleadoID = P_EMPLEADOID;
+END;
+/
+
+-- actualizar reserve
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_RESERVA (
+  P_RESERVAID NUMBER,
+  P_HUESPEDID NUMBER,
+  P_HABITACIONID NUMBER,
+  P_FECHA_ENTRADA DATE,
+  P_FECHA_SALIDA DATE,
+  P_ESTADO VARCHAR2
+) AS
+BEGIN
+  UPDATE Reservas
+  SET
+    HuespedID = P_HUESPEDID,
+    HabitacionID = P_HABITACIONID,
+    FechaEntrada = P_FECHA_ENTRADA,
+    FechaSalida = P_FECHA_SALIDA,
+    Estado = P_ESTADO
+  WHERE ReservaID = P_RESERVAID;
+END;
+/
+
+-- actualizar habitaicon
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_HABITACION (
+  P_HABITACIONID NUMBER,
+  P_NUMERO_HABITACION VARCHAR2,
+  P_TIPO_HABITACION VARCHAR2,
+  P_PRECIO_POR_NOCHE NUMBER,
+  P_ESTADO VARCHAR2
+) AS
+BEGIN
+  UPDATE Habitaciones
+  SET
+    NumeroHabitacion = P_NUMERO_HABITACION,
+    TipoHabitacion = P_TIPO_HABITACION,
+    PrecioPorNoche = P_PRECIO_POR_NOCHE,
+    Estado = P_ESTADO
+  WHERE HabitacionID = P_HABITACIONID;
+END;
+/
+
+-- actualizar servicio
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_SERVICIO (
+  P_SERVICIOID NUMBER,
+  P_NOMBRE_SERVICIO VARCHAR2,
+  P_DESCRIPCION VARCHAR2,
+  P_PRECIO NUMBER
+) AS
+BEGIN
+  UPDATE Servicios
+  SET
+    NombreServicio = P_NOMBRE_SERVICIO,
+    Descripcion = P_DESCRIPCION,
+    Precio = P_PRECIO
+  WHERE ServicioID = P_SERVICIOID;
+END;
+/
+
+-- update facturas
+/* tener cuidado en seguridad porque en un audit estos datos sensibles de facturacion pueden ser editados*/
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_FACTURA (
+  P_FACTURAID NUMBER,
+  P_RESERVAID NUMBER,
+  P_FECHA_FACTURA DATE,
+  P_TOTAL NUMBER
+) AS
+BEGIN
+  UPDATE Facturacion
+  SET
+    ReservaID = P_RESERVAID,
+    FechaFactura = P_FECHA_FACTURA,
+    Total = P_TOTAL
+  WHERE FacturaID = P_FACTURAID;
+END;
+/
+
+-- actualizar inventario
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_INVENTARIO (
+  P_INVENTARIOID NUMBER,
+  P_NOMBRE_PRODUCTO VARCHAR2,
+  P_CANTIDAD_TOTAL NUMBER,
+  P_UNIDAD_MEDIDA VARCHAR2
+) AS
+BEGIN
+  UPDATE Inventarios
+  SET
+    NombreProducto = P_NOMBRE_PRODUCTO,
+    CantidadTotal = P_CANTIDAD_TOTAL,
+    UnidadMedida = P_UNIDAD_MEDIDA
+  WHERE InventarioID = P_INVENTARIOID;
+END;
+/
+
+--  actualizar cant de objetos del invent por habitacion
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_CANTIDAD_INVENTARIO_POR_HABITACION (
+  P_HABITACIONID NUMBER,
+  P_INVENTARIOID NUMBER,
+  P_CANTIDAD NUMBER
+) AS
+BEGIN
+  UPDATE CantidadInventarioPorHabitacion
+  SET
+    Cantidad = P_CANTIDAD
+  WHERE HabitacionID = P_HABITACIONID AND InventarioID = P_INVENTARIOID;
 END;
 /
 
 
+-- update mantenimiento
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_MANTENIMIENTO (
+  P_MANTENIMIENTOID NUMBER,
+  P_HABITACIONID NUMBER,
+  P_FECHA_MANTENIMIENTO DATE,
+  P_DESCRIPCION VARCHAR2,
+  P_COSTO NUMBER
+) AS
+BEGIN
+  UPDATE Mantenimiento
+  SET
+    HabitacionID = P_HABITACIONID,
+    FechaMantenimiento = P_FECHA_MANTENIMIENTO,
+    Descripcion = P_DESCRIPCION,
+    Costo = P_COSTO
+  WHERE MantenimientoID = P_MANTENIMIENTOID;
+END;
+/
 
 
--- agregar empleado con dbms
-CREATE SEQUENCE Empleados_SEQ
-START WITH 1
-INCREMENT BY 1;
-CREATE OR REPLACE PROCEDURE AGREGAR_EMPLEADO(
-    p_nombre IN Empleados.Nombre%TYPE,
-    p_apellido IN Empleados.Apellido%TYPE,
-    p_puesto IN Empleados.Puesto%TYPE,
-    p_fecha_contratacion IN Empleados.FechaContratacion%TYPE,
-    p_salario IN Empleados.Salario%TYPE
+-- actulizar proveedor
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_PROVEEDOR (
+  P_PROVEEDORID NUMBER,
+  P_NOMBRE VARCHAR2,
+  P_DIRECCION VARCHAR2,
+  P_TELEFONO VARCHAR2,
+  P_EMAIL VARCHAR2
+) AS
+BEGIN
+  UPDATE Proveedores
+  SET
+    Nombre = P_NOMBRE,
+    Direccion = P_DIRECCION,
+    Telefono = P_TELEFONO,
+    Email = P_EMAIL
+  WHERE ProveedorID = P_PROVEEDORID;
+END;
+/
+
+-------------------------------------------------------------------------------------------
+--CRUD ELIMINAR DE LAS TABLAS
+
+CREATE OR REPLACE PROCEDURE ELIMINAR_EMPLEADO(
+    p_empleado_id IN Empleados.EmpleadoID%TYPE
 )
 IS
 BEGIN
-    INSERT INTO Empleados (EmpleadoID, Nombre, Apellido, Puesto, FechaContratacion, Salario)
-    VALUES (Empleados_SEQ.NEXTVAL, p_nombre, p_apellido, p_puesto, p_fecha_contratacion, p_salario);
-    
-    DBMS_OUTPUT.PUT_LINE('Empleado agregado exitosamente!!');
+    DELETE FROM Empleados
+    WHERE EmpleadoID = p_empleado_id;
+
+    DBMS_OUTPUT.PUT_LINE('Empleado eliminado exitosamente!!');
 END;
 /
 
--- agregar factura con dbms
-CREATE SEQUENCE Facturacion_SEQ
-START WITH 1
-INCREMENT BY 1;
-CREATE OR REPLACE PROCEDURE AGREGAR_FACTURA(
-    p_reserva_id IN Facturacion.ReservaID%TYPE,
-    p_fecha_factura IN Facturacion.FechaFactura%TYPE,
-    p_total IN Facturacion.Total%TYPE
-)
-IS
-BEGIN
-    INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
-    VALUES (Facturacion_SEQ.NEXTVAL, p_reserva_id, p_fecha_factura, p_total);
-    
-    DBMS_OUTPUT.PUT_LINE('Factura agregada exitosamente!!!!');
-END;
-/
 
-CREATE SEQUENCE Huespedes_SEQ
-START WITH 1
-INCREMENT BY 1;
---Procedimiento para agregar un huesped
-CREATE OR REPLACE PROCEDURE AGREGAR_HUESPED(
-    p_nombre IN Huespedes.Nombre%TYPE,
-    p_apellido IN Huespedes.Apellido%TYPE,
-    p_fecha_nacimiento IN Huespedes.FechaNacimiento%TYPE,
-    p_direccion IN Huespedes.Direccion%TYPE,
-    p_telefono IN Huespedes.Telefono%TYPE,
-    p_email IN Huespedes.Email%TYPE
+CREATE OR REPLACE PROCEDURE ELIMINAR_HUESPED(
+    p_huesped_id IN Huespedes.HuespedID%TYPE
 )
 IS
 BEGIN
-    INSERT INTO Huespedes (HuespedID, Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email)
-    VALUES (Huespedes_SEQ.NEXTVAL, p_nombre, p_apellido, p_fecha_nacimiento, p_direccion, p_telefono, p_email);
-    DBMS_OUTPUT.PUT_LINE('Huésped agregado exitosamente.');
+    DELETE FROM Huespedes
+    WHERE HuespedID = p_huesped_id;
+
+    DBMS_OUTPUT.PUT_LINE('Huésped eliminado exitosamente.');
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END AGREGAR_HUESPED;
-
-BEGIN
-    AGREGAR_HUESPED('Carlos', 'Pérez', TO_DATE('1985-04-23', 'YYYY-MM-DD'), 'Calle Falsa 123', '123456789', 'carlos.perez@example.com');
-END;
-
-SET SERVEROUTPUT ON;
-/
---Procedimeinto para actualizar el estado de una Reserva
-CREATE OR REPLACE PROCEDURE ACTUALIZAR_ESTADO_RESERVA(
-    p_reservaID IN Reservas.ReservaID%TYPE,
-    p_estado IN Reservas.Estado%TYPE
-)
-IS
-BEGIN
-    UPDATE Reservas
-    SET Estado = p_estado
-    WHERE ReservaID = p_reservaID;
-    DBMS_OUTPUT.PUT_LINE('Estado de la reserva actualizado exitosamente.');
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END ACTUALIZAR_ESTADO_RESERVA;
-/
-CREATE SEQUENCE Mantenimiento_SEQ
-START WITH 1
-INCREMENT BY 1;
---Procedimiento para registrar un nuevo mantenimento
-CREATE OR REPLACE PROCEDURE REGISTRAR_MANTENIMIENTO(
-    p_habitacionID IN Mantenimiento.HabitacionID%TYPE,
-    p_fecha_mantenimiento IN Mantenimiento.FechaMantenimiento%TYPE,
-    p_descripcion IN Mantenimiento.Descripcion%TYPE,
-    p_costo IN Mantenimiento.Costo%TYPE
-)
-IS
-BEGIN
-    INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, FechaMantenimiento, Descripcion, Costo)
-    VALUES (Mantenimiento_SEQ.NEXTVAL, p_habitacionID, p_fecha_mantenimiento, p_descripcion, p_costo);
-    DBMS_OUTPUT.PUT_LINE('Mantenimiento registrado exitosamente.');
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END REGISTRAR_MANTENIMIENTO;
-
-
-BEGIN
-    REGISTRAR_MANTENIMIENTO(1, SYSDATE, 'Cambio de sábanas y limpieza', 50);
-END;
+END ELIMINAR_HUESPED;
 /
 
-CREATE SEQUENCE Servicios_SEQ
-START WITH 1
-INCREMENT BY 1;
---Procedimiento para agregar un nuevo servicio
-CREATE OR REPLACE PROCEDURE AGREGAR_SERVICIO(
-    p_nombre_servicio IN Servicios.NombreServicio%TYPE,
-    p_descripcion IN Servicios.Descripcion%TYPE,
-    p_precio IN Servicios.Precio%TYPE
+CREATE OR REPLACE PROCEDURE ELIMINAR_SERVICIO(
+    p_servicio_id IN Servicios.ServicioID%TYPE
 )
 IS
 BEGIN
-    INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio)
-    VALUES (Servicios_SEQ.NEXTVAL, p_nombre_servicio, p_descripcion, p_precio);
-    DBMS_OUTPUT.PUT_LINE('Servicio agregado exitosamente.');
+    DELETE FROM Servicios
+    WHERE ServicioID = p_servicio_id;
+
+    DBMS_OUTPUT.PUT_LINE('Servicio eliminado exitosamente.');
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END AGREGAR_SERVICIO;
+END ELIMINAR_SERVICIO;
+/
 
+CREATE OR REPLACE PROCEDURE ELIMINAR_RESERVA (
+    p_reservaid IN Reservas.ReservaID%TYPE
+) AS
 BEGIN
-    AGREGAR_SERVICIO('Spa', 'Servicio de spa con masaje relajante', 100);
-END;
+    DELETE FROM Reservas
+    WHERE ReservaID = p_reservaid;
 
-
---Procedimiento para listar los empleados contratados en despues de una fecha específica
-CREATE OR REPLACE PROCEDURE LISTA_EMPLEADOS_CONTRATADOS_DESPUES(
-    p_fecha IN DATE
-)
-IS
-BEGIN
-    FOR rec IN (SELECT Nombre, Apellido FROM Empleados WHERE FechaContratacion > p_fecha)
-    LOOP
-        DBMS_OUTPUT.PUT_LINE(rec.Nombre || ' ' || rec.Apellido);
-    END LOOP;
-END LISTA_EMPLEADOS_CONTRATADOS_DESPUES;
-
-
---Actualizar la cantidad de inventario por habitacion
-CREATE OR REPLACE PROCEDURE ACTUALIZAR_CANTIDAD_INVENTARIO(
-    p_habitacionID IN CantidadInventarioPorHabitacion.HabitacionID%TYPE,
-    p_inventarioID IN CantidadInventarioPorHabitacion.InventarioID%TYPE,
-    p_cantidad IN CantidadInventarioPorHabitacion.Cantidad%TYPE
-)
-IS
-BEGIN
-    UPDATE CantidadInventarioPorHabitacion
-    SET Cantidad = p_cantidad
-    WHERE HabitacionID = p_habitacionID AND InventarioID = p_inventarioID;
-    DBMS_OUTPUT.PUT_LINE('Cantidad de inventario actualizada exitosamente.');
+    DBMS_OUTPUT.PUT_LINE('Reserva eliminada exitosamente.');
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END ACTUALIZAR_CANTIDAD_INVENTARIO;
+END ELIMINAR_RESERVA;
+/
+
+CREATE OR REPLACE PROCEDURE ELIMINAR_HABITACION (
+    p_habitacionid IN Habitaciones.HabitacionID%TYPE
+) AS
+BEGIN
+    DELETE FROM Habitaciones
+    WHERE HabitacionID = p_habitacionid;
+
+    DBMS_OUTPUT.PUT_LINE('Habitación eliminada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_HABITACION;
+/
+CREATE OR REPLACE PROCEDURE ELIMINAR_FACTURA (
+    p_facturaid IN Facturacion.FacturaID%TYPE
+) AS
+BEGIN
+    DELETE FROM Facturacion
+    WHERE FacturaID = p_facturaid;
+
+    DBMS_OUTPUT.PUT_LINE('Factura eliminada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_FACTURA;
+/
+CREATE OR REPLACE PROCEDURE ELIMINAR_INVENTARIO (
+    p_inventarioid IN Inventarios.InventarioID%TYPE
+) AS
+BEGIN
+    DELETE FROM Inventarios
+    WHERE InventarioID = p_inventarioid;
+
+    DBMS_OUTPUT.PUT_LINE('Inventario eliminado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_INVENTARIO;
+/
+
+CREATE OR REPLACE PROCEDURE ELIMINAR_CANTIDAD_INVENTARIO_POR_HABITACION (
+    p_habitacionid IN CantidadInventarioPorHabitacion.HabitacionID%TYPE,
+    p_inventarioid IN CantidadInventarioPorHabitacion.InventarioID%TYPE
+) AS
+BEGIN
+    DELETE FROM CantidadInventarioPorHabitacion
+    WHERE HabitacionID = p_habitacionid AND InventarioID = p_inventarioid;
+
+    DBMS_OUTPUT.PUT_LINE('Cantidad de inventario por habitación eliminada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_CANTIDAD_INVENTARIO_POR_HABITACION;
+/
+
+CREATE OR REPLACE PROCEDURE ELIMINAR_MANTENIMIENTO (
+    p_mantenimientoid IN Mantenimiento.MantenimientoID%TYPE
+) AS
+BEGIN
+    DELETE FROM Mantenimiento
+    WHERE MantenimientoID = p_mantenimientoid;
+
+    DBMS_OUTPUT.PUT_LINE('Mantenimiento eliminado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_MANTENIMIENTO;
+/
+CREATE OR REPLACE PROCEDURE ELIMINAR_PROVEEDOR (
+    p_proveedorid IN Proveedores.ProveedorID%TYPE
+) AS
+BEGIN
+    DELETE FROM Proveedores
+    WHERE ProveedorID = p_proveedorid;
+
+    DBMS_OUTPUT.PUT_LINE('Proveedor eliminado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+END ELIMINAR_PROVEEDOR;
+/
+
 
 -- SECUENCIAS
 
