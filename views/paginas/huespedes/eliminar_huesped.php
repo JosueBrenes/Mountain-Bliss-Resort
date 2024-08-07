@@ -20,7 +20,8 @@ if (isset($_GET['id'])) {
     $resultReservas = oci_execute($deleteReservasStid);
 
     if ($resultReservas) {
-        $deleteHuespedesSql = 'DELETE FROM Huespedes WHERE HuespedID = :huesped_id';
+        // Eliminar el huésped
+        $deleteHuespedesSql = 'BEGIN ELIMINAR_HUESPED(:huesped_id); END;';
         $deleteHuespedesStid = oci_parse($conn, $deleteHuespedesSql);
         oci_bind_by_name($deleteHuespedesStid, ':huesped_id', $huespedId);
         

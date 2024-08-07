@@ -11,10 +11,14 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $empleado_id = $_GET['id'];
 
-$sql = 'DELETE FROM Empleados WHERE EmpleadoID = :empleado_id';
+// Preparar la llamada al procedimiento almacenado
+$sql = 'BEGIN ELIMINAR_EMPLEADO(:empleado_id); END;';
 $stid = oci_parse($conn, $sql);
+
+// Enlazar el parámetro
 oci_bind_by_name($stid, ':empleado_id', $empleado_id);
 
+// Ejecutar la llamada al procedimiento almacenado
 if (oci_execute($stid)) {
     header('Location: empleados.php?msg=Empleado eliminado con éxito');
 } else {

@@ -9,19 +9,30 @@ if (isset($_GET['habitacion_id']) && isset($_GET['inventario_id'])) {
     $habitacionId = $_GET['habitacion_id'];
     $inventarioId = $_GET['inventario_id'];
 
-    $deleteSql = 'DELETE FROM CantidadInventarioPorHabitacion WHERE HabitacionID = :habitacion_id AND InventarioID = :inventario_id';
-    $deleteStid = oci_parse($conn, $deleteSql);
-    oci_bind_by_name($deleteStid, ':habitacion_id', $habitacionId);
-    oci_bind_by_name($deleteStid, ':inventario_id', $inventarioId);
+    // Iniciar una transacción
+    $begin = oci_parse($conn, 'BEGIN');
+    oci_execute($begin);
+
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ELIMINAR_CANTIDAD_INVENTARIO_POR_HABITACION(:habitacion_id, :inventario_id); END;';
+    $stid = oci_parse($conn, $sql);
+    oci_bind_by_name($stid, ':habitacion_id', $habitacionId);
+    oci_bind_by_name($stid, ':inventario_id', $inventarioId);
     
-    if (oci_execute($deleteStid)) {
+    if (oci_execute($stid)) {
+        // Confirmar la transacción
+        $commit = oci_parse($conn, 'COMMIT');
+        oci_execute($commit);
         echo "<script>alert('Cantidad de inventario eliminada con éxito.'); window.location.href='cantidad_inventario_por_habitacion.php';</script>";
     } else {
-        $e = oci_error($deleteStid);
+        // Revertir la transacción en caso de error
+        $rollback = oci_parse($conn, 'ROLLBACK');
+        oci_execute($rollback);
+        $e = oci_error($stid);
         echo "<script>alert('Error al eliminar la cantidad de inventario: " . htmlentities($e['message'], ENT_QUOTES) . "'); window.location.href='cantidad_inventario_por_habitacion.php';</script>";
     }
 
-    oci_free_statement($deleteStid);
+    oci_free_statement($stid);
 } else {
     echo "<script>alert('ID de habitación o inventario no especificado.'); window.location.href='cantidad_inventario_por_habitacion.php';</script>";
 }

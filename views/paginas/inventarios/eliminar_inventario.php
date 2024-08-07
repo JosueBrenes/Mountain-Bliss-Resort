@@ -1,40 +1,38 @@
 <?php
-include '../../../database/database.php'; 
+include '../../../database/database.php';
 
 if (!$conn) {
     die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-if (isset($_GET['id'])) {
-    $inventarioId = $_GET['id'];
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    $inventario_id = $_GET['id'];
 
-    // Preparar la consulta para eliminar los registros dependientes en CantidadInventarioPorHabitacion
-    $deleteDependentsSql = 'DELETE FROM CantidadInventarioPorHabitacion WHERE InventarioID = :id';
-    $deleteDependentsStid = oci_parse($conn, $deleteDependentsSql);
-    oci_bind_by_name($deleteDependentsStid, ':id', $inventarioId);
-    
-    $dependentsDeleted = oci_execute($deleteDependentsStid);
-    oci_free_statement($deleteDependentsStid);
+    // Iniciar una transacción
+    $begin = oci_parse($conn, 'BEGIN');
+    oci_execute($begin);
 
-    if ($dependentsDeleted) {
-        // Ahora eliminar el registro en Inventarios
-        $deleteSql = 'DELETE FROM Inventarios WHERE InventarioID = :id';
-        $deleteStid = oci_parse($conn, $deleteSql);
-        oci_bind_by_name($deleteStid, ':id', $inventarioId);
-        
-        if (oci_execute($deleteStid)) {
-            echo "<script>alert('Inventario eliminado con éxito.'); window.location.href='inventarios.php';</script>";
-        } else {
-            $e = oci_error($deleteStid); 
-            echo "<script>alert('Error al eliminar el inventario: " . htmlentities($e['message'], ENT_QUOTES) . "'); window.location.href='inventarios.php';</script>";
-        }
+    // Preparar y ejecutar la llamada al procedimiento almacenado
+    $sql = 'BEGIN ELIMINAR_INVENTARIO(:inventario_id); END;';
+    $stid = oci_parse($conn, $sql);
+    oci_bind_by_name($stid, ':inventario_id', $inventario_id);
 
-        oci_free_statement($deleteStid);
+    if (oci_execute($stid)) {
+        // Confirmar la transacción
+        $commit = oci_parse($conn, 'COMMIT');
+        oci_execute($commit);
+        echo "<script>alert('Inventario eliminado con éxito.'); window.location.href='inventarios.php';</script>";
     } else {
-        echo "<script>alert('Error al eliminar registros dependientes.'); window.location.href='inventarios.php';</script>";
+        // Revertir la transacción en caso de error
+        $rollback = oci_parse($conn, 'ROLLBACK');
+        oci_execute($rollback);
+        $error = oci_error($stid);
+        echo "<script>alert('Error al eliminar el inventario: " . htmlentities($error['message'], ENT_QUOTES) . "'); window.location.href='inventarios.php';</script>";
     }
+
+    oci_free_statement($stid);
 } else {
-    echo "<script>alert('ID no especificado.'); window.location.href='inventarios.php';</script>";
+    echo "<script>alert('ID de inventario no especificado.'); window.location.href='inventarios.php';</script>";
 }
 
 oci_close($conn);
