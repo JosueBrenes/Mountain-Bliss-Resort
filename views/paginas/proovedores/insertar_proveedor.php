@@ -2,41 +2,41 @@
 include '../../../database/database.php';
 
 if (!$conn) {
-    echo "No se pudo conectar a la base de datos.";
-    exit;
+    die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$nombre_proveedor = $_POST['nombre_proveedor'];
-$direccion = $_POST['direccion'];
-$telefono = $_POST['telefono'];
-$email = $_POST['email'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Obtener los datos del formulario
+    $nombre_proveedor = isset($_POST['nombre_proveedor']) ? $_POST['nombre_proveedor'] : '';
+    $direccion = isset($_POST['direccion']) ? $_POST['direccion'] : '';
+    $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : '';
 
-$query = 'SELECT Proveedor_SEQ.NEXTVAL AS id_proveedor FROM dual';
-$stid = oci_parse($conn, $query);
-oci_execute($stid);
-$row = oci_fetch_assoc($stid);
-$id_proveedor = $row['ID_PROVEEDOR'];
+    // Verificar que todos los campos están presentes
+    if (empty($nombre_proveedor) || empty($direccion) || empty($telefono)) {
+        die("Todos los campos son requeridos.");
+    }
 
-$sql = 'INSERT INTO Proveedores (ProveedorID, NombreProveedor, Direccion, Telefono, Email) 
-        VALUES (:id_proveedor, :nombre_proveedor, :direccion, :telefono, :email)';
-$stid = oci_parse($conn, $sql);
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN INSERTAR_PROVEEDOR(:nombre_proveedor, :direccion, :telefono); END;';
+    $stid = oci_parse($conn, $sql);
 
-oci_bind_by_name($stid, ':id_proveedor', $id_proveedor);
-oci_bind_by_name($stid, ':nombre_proveedor', $nombre_proveedor);
-oci_bind_by_name($stid, ':direccion', $direccion);
-oci_bind_by_name($stid, ':telefono', $telefono);
-oci_bind_by_name($stid, ':email', $email);
+    // Enlazar los parámetros
+    oci_bind_by_name($stid, ':nombre_proveedor', $nombre_proveedor);
+    oci_bind_by_name($stid, ':direccion', $direccion);
+    oci_bind_by_name($stid, ':telefono', $telefono);
 
-$success = oci_execute($stid);
+    // Ejecutar la llamada al procedimiento almacenado
+    if (oci_execute($stid)) {
+        header('Location: proveedores.php?msg=Proveedor agregado con éxito');
+        exit();
+    } else {
+        $error = oci_error($stid);
+        die("Error al agregar el proveedor: " . htmlentities($error['message'], ENT_QUOTES));
+    }
 
-if ($success) {
-    header('Location: proveedores.php');
-    exit();
+    oci_free_statement($stid);
+    oci_close($conn);
 } else {
-    $e = oci_error($stid);
-    echo "Error al agregar proveedor: " . $e['message'];
+    die("Método de solicitud no válido.");
 }
-
-oci_free_statement($stid);
-oci_close($conn);
 ?>

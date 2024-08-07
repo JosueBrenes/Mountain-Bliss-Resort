@@ -7,23 +7,33 @@ if (!$conn) {
 }
 
 $nombre_producto = $_POST['nombre_producto'];
-$cantidad = $_POST['cantidad'];
-$ubicacion = $_POST['ubicacion'];
+$cantidad_total = $_POST['cantidad_total'];
+$unidad_medida = $_POST['unidad_medida'];
 
-$query = 'SELECT Inventario_SEQ.NEXTVAL AS id_inventario FROM dual';
-$stid = oci_parse($conn, $query);
-oci_execute($stid);
-$row = oci_fetch_assoc($stid);
-$id_inventario = $row['ID_INVENTARIO'];
+// Validar los datos para evitar valores nulos
+if (empty($nombre_producto) || empty($cantidad_total) || empty($unidad_medida)) {
+    echo "Todos los campos son obligatorios.";
+    exit;
+}
 
-$sql = 'INSERT INTO Inventarios (InventarioID, NombreProducto, Cantidad, Ubicacion) 
-        VALUES (:id_inventario, :nombre_producto, :cantidad, :ubicacion)';
+// Obtener el siguiente valor de la secuencia
+$query = 'SELECT Inventario_SEQ.NEXTVAL AS inventario_id FROM dual';
+$stid_seq = oci_parse($conn, $query);
+oci_execute($stid_seq);
+$row = oci_fetch_assoc($stid_seq);
+$id_inventario = $row['INVENTARIO_ID'];
+
+oci_free_statement($stid_seq);
+
+// Llamar al procedimiento almacenado para insertar el inventario
+$sql = 'BEGIN INSERTAR_INVENTARIO(:inventario_id, :nombre_producto, :cantidad_total, :unidad_medida); END;';
 $stid = oci_parse($conn, $sql);
 
-oci_bind_by_name($stid, ':id_inventario', $id_inventario);
+// Vincular los parámetros
+oci_bind_by_name($stid, ':inventario_id', $id_inventario);
 oci_bind_by_name($stid, ':nombre_producto', $nombre_producto);
-oci_bind_by_name($stid, ':cantidad', $cantidad);
-oci_bind_by_name($stid, ':ubicacion', $ubicacion);
+oci_bind_by_name($stid, ':cantidad_total', $cantidad_total);
+oci_bind_by_name($stid, ':unidad_medida', $unidad_medida);
 
 $success = oci_execute($stid);
 

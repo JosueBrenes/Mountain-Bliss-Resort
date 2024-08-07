@@ -43,12 +43,63 @@
                         <form action="insertar_reserva.php" method="POST">
                             <div class="form-group">
                                 <label for="huesped_id">ID del Huésped</label>
-                                <input type="number" id="huesped_id" name="huesped_id" class="form-control" required>
+                                <select id="huesped_id" name="huesped_id" class="form-control" required>
+                                    <?php
+                                    // Conectar a la base de datos
+                                    include '../../../database/database.php';
+
+                                    if (!$conn) {
+                                        die("No se pudo conectar a la base de datos.");
+                                    }
+
+                                    // Consultar IDs de huéspedes
+                                    $query = 'SELECT HuespedID, Nombre FROM Huespedes';
+                                    $stid = oci_parse($conn, $query);
+                                    $result = oci_execute($stid);
+
+                                    if (!$result) {
+                                        $e = oci_error($stid);
+                                        die("Error en la consulta de huéspedes: " . $e['message']);
+                                    }
+
+                                    while ($row = oci_fetch_assoc($stid)) {
+                                        echo "<option value=\"" . htmlspecialchars($row['HUESPEDID']) . "\">" . htmlspecialchars($row['NOMBRE']) . "</option>";
+                                    }
+
+                                    oci_free_statement($stid);
+                                    ?>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="habitacion_id">ID de la Habitación</label>
-                                <input type="number" id="habitacion_id" name="habitacion_id" class="form-control" required>
+                                <select id="habitacion_id" name="habitacion_id" class="form-control" required>
+                                    <?php
+                                    include '../../../database/database.php';
+
+                                    if (!$conn) {
+                                        die("No se pudo conectar a la base de datos.");
+                                    }
+
+                                    // Consultar IDs de habitaciones
+                                    $query = 'SELECT HABITACIONID, NUMEROHABITACION FROM Habitaciones';
+                                    $stid = oci_parse($conn, $query);
+                                    $result = oci_execute($stid);
+
+                                    if (!$result) {
+                                        $e = oci_error($stid);
+                                        die("Error en la consulta de habitaciones: " . $e['message']);
+                                    }
+
+                                    while ($row = oci_fetch_assoc($stid)) {
+                                        echo "<option value=\"" . htmlspecialchars($row['HABITACIONID']) . "\">" . htmlspecialchars($row['NUMEROHABITACION']) . "</option>";
+                                    }
+
+                                    oci_free_statement($stid);
+                                    oci_close($conn);
+                                    ?>
+                                </select>
                             </div>
+
                             <div class="form-group">
                                 <label for="fecha_entrada">Fecha de Entrada</label>
                                 <input type="date" id="fecha_entrada" name="fecha_entrada" class="form-control">

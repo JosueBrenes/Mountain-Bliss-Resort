@@ -25,46 +25,71 @@
         <a href="../../paginas/proovedores/proveedores.php">Gestionar Proveedores</a>
     </nav>
 
-  <!-- Content -->
-  <div class="content">
-    <!-- Header -->
-    <header class="header_area">
-      <a href="../../../public/index.php" class="header_link">
-          <h1>Mountain-Bliss-Resort</h1>
-      </a>
-    </header>
+    <!-- Content -->
+    <div class="content">
+        <!-- Header -->
+        <header class="header_area">
+            <a href="../../../public/index.php" class="header_link">
+                <h1>Mountain-Bliss-Resort</h1>
+            </a>
+        </header>
 
-    <!-- Main Content -->
-    <section class="options_area">
-      <div class="container">
-        <div class="row">
-          <div class="container mt-5">
-            <h1 style="color: #333">Agregar Nueva Factura</h1>
-            <form action="insertar_facturacion.php" method="POST">
-                <div class="form-group">
-                    <label for="reserva_id">ID de la Reserva</label>
-                    <input type="number" id="reserva_id" name="reserva_id" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_factura">Fecha de la Factura</label>
-                    <input type="date" id="fecha_factura" name="fecha_factura" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="total">Total</label>
-                    <input type="number" id="total" name="total" step="0.01" class="form-control">
-                </div>
-                <button type="submit" class="btn" style="background-color: #013e6a; color: white; margin-bottom: 2rem;">Agregar Factura</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
+        <!-- Main Content -->
+        <?php
+        include '../../../database/database.php';
 
-    <!-- Footer -->
-    <footer class="footer_area">
-      <p class="footer_text">&copy; 2024 Mountain-Bliss-Resort. Todos los derechos reservados.</p>
-    </footer>
-  </div>
+        if (!$conn) {
+            die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
+        }
+
+        // Consultar reservas
+        $query = 'SELECT ReservaID FROM Reservas';
+        $stid = oci_parse($conn, $query);
+        oci_execute($stid);
+
+        // Crear el array de opciones para el <select>
+        $options = '';
+        while (($row = oci_fetch_assoc($stid)) != false) {
+            $options .= '<option value="' . htmlspecialchars($row['RESERVAID']) . '">' . htmlspecialchars($row['RESERVAID']) . '</option>';
+        }
+
+        oci_free_statement($stid);
+        oci_close($conn);
+        ?>
+
+        <section class="options_area">
+            <div class="container">
+                <div class="row">
+                    <div class="container mt-5">
+                        <h1 style="color: #333">Agregar Nueva Factura</h1>
+                        <form action="insertar_facturacion.php" method="POST">
+                            <div class="form-group">
+                                <label for="reserva_id">ID de la Reserva</label>
+                                <select id="reserva_id" name="reserva_id" class="form-control" required>
+                                    <option value="" disabled selected>Selecciona una reserva</option>
+                                    <?php echo $options; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha_factura">Fecha de la Factura</label>
+                                <input type="date" id="fecha_factura" name="fecha_factura" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="total">Total</label>
+                                <input type="number" id="total" name="total" step="0.01" class="form-control">
+                            </div>
+                            <button type="submit" class="btn" style="background-color: #013e6a; color: white; margin-bottom: 2rem;">Agregar Factura</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer_area">
+            <p class="footer_text">&copy; 2024 Mountain-Bliss-Resort. Todos los derechos reservados.</p>
+        </footer>
+    </div>
 
 </body>
 </html>

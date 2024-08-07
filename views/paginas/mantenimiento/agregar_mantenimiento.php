@@ -41,28 +41,29 @@
           <div class="container mt-5">
             <h1 style="color: #333">Agregar Mantenimiento</h1>
             <form action="insertar_mantenimiento.php" method="POST">
-                <div class="form-group">
-                    <label for="habitacion_id">ID de la Habitación</label>
-                    <input type="number" id="habitacion_id" name="habitacion_id" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="descripcion">Descripción</label>
-                    <textarea id="descripcion" name="descripcion" class="form-control"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_inicio">Fecha de Inicio</label>
-                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="fecha_fin">Fecha de Fin</label>
-                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control">
-                </div>
-                <button type="submit" class="btn" style="background-color: #013e6a; color: white; margin-bottom: 2rem;">Agregar Mantenimiento</button>
-            </form>
+              <div class="form-group">
+                  <label for="habitacion_id">ID de la Habitación</label>
+                  <input type="number" id="habitacion_id" name="habitacion_id" class="form-control" required>
+              </div>
+              <div class="form-group">
+                  <label for="fecha_mantenimiento">Fecha de Mantenimiento</label>
+                  <input type="date" id="fecha_mantenimiento" name="fecha_mantenimiento" class="form-control" required>
+              </div>
+              <div class="form-group">
+                  <label for="descripcion">Descripción</label>
+                  <textarea id="descripcion" name="descripcion" class="form-control"></textarea>
+              </div>
+              <div class="form-group">
+                  <label for="costo">Costo</label>
+                  <input type="number" id="costo" name="costo" class="form-control" step="0.01" required>
+              </div>
+              <button type="submit" class="btn" style="background-color: #013e6a; color: white; margin-bottom: 2rem;">Agregar Mantenimiento</button>
+          </form>
           </div>
         </div>
       </div>
     </section>
+
 
     <!-- Footer -->
     <footer class="footer_area">

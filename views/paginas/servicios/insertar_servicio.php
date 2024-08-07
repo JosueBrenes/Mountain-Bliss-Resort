@@ -10,17 +10,16 @@ $nombre_servicio = $_POST['nombre_servicio'];
 $descripcion = $_POST['descripcion'];
 $precio = $_POST['precio'];
 
-$query = 'SELECT Servicio_SEQ.NEXTVAL AS id_servicio FROM dual';
-$stid = oci_parse($conn, $query);
-oci_execute($stid);
-$row = oci_fetch_assoc($stid);
-$id_servicio = $row['ID_SERVICIO'];
+// Validar los datos para evitar valores nulos
+if (empty($nombre_servicio) || empty($descripcion) || empty($precio)) {
+    echo "Todos los campos son obligatorios.";
+    exit;
+}
 
-$sql = 'INSERT INTO Servicios (ServicioID, NombreServicio, Descripcion, Precio) 
-        VALUES (:id_servicio, :nombre_servicio, :descripcion, :precio)';
+// Llamar al procedimiento almacenado para insertar servicio
+$sql = 'BEGIN INSERTAR_SERVICIO(:nombre_servicio, :descripcion, :precio); END;';
 $stid = oci_parse($conn, $sql);
 
-oci_bind_by_name($stid, ':id_servicio', $id_servicio);
 oci_bind_by_name($stid, ':nombre_servicio', $nombre_servicio);
 oci_bind_by_name($stid, ':descripcion', $descripcion);
 oci_bind_by_name($stid, ':precio', $precio);

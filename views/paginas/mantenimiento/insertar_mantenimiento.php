@@ -2,49 +2,43 @@
 include '../../../database/database.php';
 
 if (!$conn) {
-    echo "No se pudo conectar a la base de datos.";
-    exit;
+    die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$habitacion_id = $_POST['habitacion_id'];
-$descripcion = $_POST['descripcion'];
-$fecha_mantenimiento = $_POST['fecha_mantenimiento'];
-$costo = $_POST['costo'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Obtener los datos del formulario
+    $habitacion_id = isset($_POST['habitacion_id']) ? $_POST['habitacion_id'] : '';
+    $fecha_mantenimiento = isset($_POST['fecha_mantenimiento']) ? $_POST['fecha_mantenimiento'] : '';
+    $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : '';
+    $costo = isset($_POST['costo']) ? $_POST['costo'] : '';
 
-try {
-    $fecha_mantenimiento_dt = new DateTime($fecha_mantenimiento);
-    $fecha_mantenimiento_formateada = $fecha_mantenimiento_dt->format('Y-m-d');
-} catch (Exception $e) {
-    echo "Error al formatear la fecha: " . $e->getMessage();
-    exit;
-}
+    // Verificar que todos los campos están presentes
+    if (empty($habitacion_id) || empty($fecha_mantenimiento) || empty($descripcion) || empty($costo)) {
+        die("Todos los campos son requeridos.");
+    }
 
-$query = 'SELECT Mantenimiento_SEQ.NEXTVAL AS id_mantenimiento FROM dual';
-$stid = oci_parse($conn, $query);
-oci_execute($stid);
-$row = oci_fetch_assoc($stid);
-$id_mantenimiento = $row['ID_MANTENIMIENTO'];
+    // Preparar la llamada al procedimiento almacenado
+    $sql = 'BEGIN INSERTAR_MANTENIMIENTO(:habitacion_id, TO_DATE(:fecha_mantenimiento, \'YYYY-MM-DD\'), :descripcion, :costo); END;';
+    $stid = oci_parse($conn, $sql);
 
-$sql = 'INSERT INTO Mantenimiento (MantenimientoID, HabitacionID, Descripcion, FechaMantenimiento, Costo) 
-        VALUES (:id_mantenimiento, :habitacion_id, :descripcion, TO_DATE(:fecha_mantenimiento, \'YYYY-MM-DD\'), :costo)';
-$stid = oci_parse($conn, $sql);
+    // Enlazar los parámetros
+    oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
+    oci_bind_by_name($stid, ':fecha_mantenimiento', $fecha_mantenimiento);
+    oci_bind_by_name($stid, ':descripcion', $descripcion);
+    oci_bind_by_name($stid, ':costo', $costo);
 
-oci_bind_by_name($stid, ':id_mantenimiento', $id_mantenimiento);
-oci_bind_by_name($stid, ':habitacion_id', $habitacion_id);
-oci_bind_by_name($stid, ':descripcion', $descripcion);
-oci_bind_by_name($stid, ':fecha_mantenimiento', $fecha_mantenimiento_formateada);
-oci_bind_by_name($stid, ':costo', $costo);
+    // Ejecutar la llamada al procedimiento almacenado
+    if (oci_execute($stid)) {
+        header('Location: mantenimiento.php?msg=Mantenimiento agregado con éxito');
+        exit();
+    } else {
+        $error = oci_error($stid);
+        die("Error al agregar el mantenimiento: " . htmlentities($error['message'], ENT_QUOTES));
+    }
 
-$success = oci_execute($stid);
-
-if ($success) {
-    header('Location: mantenimiento.php');
-    exit();
+    oci_free_statement($stid);
+    oci_close($conn);
 } else {
-    $e = oci_error($stid);
-    echo "Error al agregar mantenimiento: " . $e['message'];
+    die("Método de solicitud no válido.");
 }
-
-oci_free_statement($stid);
-oci_close($conn);
 ?>
