@@ -18,16 +18,6 @@ CREATE TABLE Empleados (
     Salario NUMBER(10, 2)
 );
 
-CREATE TABLE Reservas (
-    ReservaID NUMBER PRIMARY KEY,
-    HuespedID NUMBER REFERENCES Huespedes(HuespedID),
-    HabitacionID NUMBER REFERENCES Habitaciones(HabitacionID),
-    FechaEntrada DATE NOT NULL,
-    FechaSalida DATE NOT NULL,
-    Estado VARCHAR2(50) CHECK (Estado IN ('Pendiente', 'Confirmada', 'Cancelada'))
-);
-
-
 CREATE TABLE Habitaciones (
     HabitacionID NUMBER PRIMARY KEY,
     NumeroHabitacion VARCHAR2(10) NOT NULL,
@@ -36,7 +26,14 @@ CREATE TABLE Habitaciones (
     Estado VARCHAR2(50) CHECK (Estado IN ('Disponible', 'Ocupada', 'Mantenimiento'))
 );
 
-
+CREATE TABLE Reservas (
+    ReservaID NUMBER PRIMARY KEY,
+    HuespedID NUMBER REFERENCES Huespedes(HuespedID),
+    HabitacionID NUMBER REFERENCES Habitaciones(HabitacionID),
+    FechaEntrada DATE NOT NULL,
+    FechaSalida DATE NOT NULL,
+    Estado VARCHAR2(50) CHECK (Estado IN ('Pendiente', 'Confirmada', 'Cancelada'))
+);
 
 CREATE TABLE Servicios (
     ServicioID NUMBER PRIMARY KEY,
@@ -354,6 +351,73 @@ JOIN
 JOIN 
     Habitaciones HR ON R.HabitacionID = HR.HabitacionID;
 
+
+----------------------------------------------------------------------------
+-- SECUENCIAS
+
+-- Secuencia para Huespedes
+CREATE SEQUENCE Huesped_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Empleados
+CREATE SEQUENCE Empleado_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Habitaciones
+CREATE SEQUENCE Habitacion_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Reservas
+CREATE SEQUENCE Reserva_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Servicios
+CREATE SEQUENCE Servicio_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Facturacion
+CREATE SEQUENCE Factura_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Inventarios
+CREATE SEQUENCE Inventario_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Mantenimiento
+CREATE SEQUENCE Mantenimiento_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Proveedores
+CREATE SEQUENCE Proveedor_SEQ
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
 
 --PROCEDIMIENTOS
 
@@ -974,72 +1038,7 @@ BEGIN
     RETURN resultado;
 END;
 /
-----------------------------------------------------------------------------
--- SECUENCIAS
 
--- Secuencia para Huespedes
-CREATE SEQUENCE Huesped_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Empleados
-CREATE SEQUENCE Empleado_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Habitaciones
-CREATE SEQUENCE Habitacion_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Reservas
-CREATE SEQUENCE Reserva_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Servicios
-CREATE SEQUENCE Servicio_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Facturacion
-CREATE SEQUENCE Factura_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Inventarios
-CREATE SEQUENCE Inventario_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Mantenimiento
-CREATE SEQUENCE Mantenimiento_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Proveedores
-CREATE SEQUENCE Proveedor_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
 
 --CURSORES
 CREATE OR REPLACE PROCEDURE CURSOR_HUESPEDES (
