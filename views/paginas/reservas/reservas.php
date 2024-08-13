@@ -5,12 +5,17 @@ if (!$conn) {
     die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$sql = 'SELECT * FROM Reservas';
-$stid = oci_parse($conn, $sql);
+// Llamar al procedimiento almacenado
+$stid = oci_parse($conn, 'BEGIN obtener_reservas(:p_cursor); END;');
+
+// Asociar el cursor de salida
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 
 oci_execute($stid);
-?>
+oci_execute($cursor);
 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -65,7 +70,7 @@ oci_execute($stid);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while (($row = oci_fetch_assoc($stid)) !== false): ?>
+                        <?php while (($row = oci_fetch_assoc($cursor)) !== false): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['RESERVAID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['HUESPEDID'], ENT_QUOTES); ?></td>
@@ -94,6 +99,7 @@ oci_execute($stid);
 
     <?php 
     oci_free_statement($stid);
+    oci_free_statement($cursor);
     oci_close($conn); 
     ?>
 </body>

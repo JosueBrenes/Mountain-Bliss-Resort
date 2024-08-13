@@ -5,10 +5,15 @@ if (!$conn) {
     die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$sql = 'SELECT * FROM Facturacion';
-$stid = oci_parse($conn, $sql);
+// Llamar al procedimiento almacenado
+$stid = oci_parse($conn, 'BEGIN obtener_facturas(:p_cursor); END;');
+
+// Crear y asociar el cursor de salida
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 
 oci_execute($stid);
+oci_execute($cursor);
 ?>
 
 <!DOCTYPE html>
@@ -45,13 +50,14 @@ oci_execute($stid);
                 <h1>Mountain-Bliss-Resort</h1>
             </a>
         </header>
+
         <!-- Main Content -->
         <section class="options_area">
             <div class="container">
                 <h1 style="color: #333">Facturación</h1>
                 <a href="agregar_facturacion.php" class="button">Agregar Nueva Factura</a>
                 <a href="funciones/generar_reporte_facturacion.php" class="button">Filtrar Factura por fecha</a>
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -62,7 +68,7 @@ oci_execute($stid);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = oci_fetch_assoc($stid)): ?>
+                        <?php while (($row = oci_fetch_assoc($cursor)) !== false): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['FACTURAID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['RESERVAID'], ENT_QUOTES); ?></td>
@@ -89,6 +95,7 @@ oci_execute($stid);
 
     <?php 
     oci_free_statement($stid);
+    oci_free_statement($cursor);
     oci_close($conn); 
     ?>
 </body>

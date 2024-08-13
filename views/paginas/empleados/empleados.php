@@ -5,31 +5,29 @@ if (!$conn) {
     die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$sql = 'SELECT * FROM Empleados';
-$stid = oci_parse($conn, $sql);
+// Llamar al procedimiento almacenado
+$stid = oci_parse($conn, 'BEGIN obtener_empleados(:p_cursor); END;');
+
+// Crear y asociar el cursor de salida
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 
 oci_execute($stid);
+oci_execute($cursor);
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Empleados - Mountain-Bliss-Resort</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../../../public/build/css/styles.css" />
-    <link rel="icon" href="../public/build/img/icon.png" type="image/x-icon" />
-    <link
-      rel="shortcut icon"
-      href="../public/build/img/icon.png"
-      type="image/x-icon"
-    />
-  </head>
-  <body>
+    <link rel="icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
+</head>
+<body>
     <!-- Sidebar -->
     <nav class="sidebar">
         <h2>Opciones Administrativas</h2>
@@ -46,39 +44,33 @@ oci_execute($stid);
 
     <!-- Content -->
     <div class="content">
-      <!-- Header -->
-      <header class="header_area">
+        <!-- Header -->
+        <header class="header_area">
             <a href="../../../public/index.php" class="header_link">
                 <h1>Mountain-Bliss-Resort</h1>
             </a>
-      </header>
-      
-      <!-- Main Content -->
-      <section class="options_area">
-        <div class="container">
-          <div class="row">
+        </header>
+        
+        <!-- Main Content -->
+        <section class="options_area">
             <div class="container">
-              <h1 style="color: #333">Empleados</h1>
-              <a href="agregar_empleado.php" class="button"
-                >Agregar Nuevo Empleado</a
-              >
-              <a href="funciones/generar_reporte_empleados.php" class="button"
-                >Filtrar empleado por puesto</a
-              >
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Puesto</th>
-                    <th>Fecha de Contratación</th>
-                    <th>Salario</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                        <?php while ($row = oci_fetch_assoc($stid)): ?>
+                <h1 style="color: #333">Empleados</h1>
+                <a href="agregar_empleado.php" class="button">Agregar Nuevo Empleado</a>
+                <a href="funciones/generar_reporte_empleados.php" class="button">Filtrar Empleado por Puesto</a>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Puesto</th>
+                            <th>Fecha de Contratación</th>
+                            <th>Salario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while (($row = oci_fetch_assoc($cursor)) !== false): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['EMPLEADOID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['NOMBRE'], ENT_QUOTES); ?></td>
@@ -93,23 +85,22 @@ oci_execute($stid);
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
-              </table>
+                </table>
             </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Footer -->
-      <footer class="footer_area">
-        <p class="footer_text">
-          &copy; 2024 Mountain-Bliss-Resort. Todos los derechos reservados.
-        </p>
-      </footer>
+        <!-- Footer -->
+        <footer class="footer_area">
+            <p class="footer_text">
+                &copy; 2024 Mountain-Bliss-Resort. Todos los derechos reservados.
+            </p>
+        </footer>
     </div>
 
     <?php 
     oci_free_statement($stid);
+    oci_free_statement($cursor);
     oci_close($conn); 
     ?>
-  </body>
+</body>
 </html>

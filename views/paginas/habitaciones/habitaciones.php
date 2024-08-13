@@ -5,10 +5,15 @@ if (!$conn) {
     die("Conexión fallida: " . htmlentities(oci_error()['message'], ENT_QUOTES));
 }
 
-$sql = 'SELECT * FROM Habitaciones';
-$stid = oci_parse($conn, $sql);
+// Llamar al procedimiento almacenado
+$stid = oci_parse($conn, 'BEGIN obtener_habitaciones(:p_cursor); END;');
+
+// Crear y asociar el cursor de salida
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 
 oci_execute($stid);
+oci_execute($cursor);
 ?>
 
 <!DOCTYPE html>
@@ -19,8 +24,8 @@ oci_execute($stid);
     <title>Habitaciones - Mountain-Bliss-Resort</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../../../public/build/css/styles.css" />
-    <link rel="icon" href="../public/build/img/icon.png" type="image/x-icon" />
-    <link rel="shortcut icon" href="../public/build/img/icon.png" type="image/x-icon" />
+    <link rel="icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
 </head>
 <body>
     <!-- Sidebar -->
@@ -53,7 +58,7 @@ oci_execute($stid);
                 <h1 style="color: #333">Habitaciones</h1>
                 <a href="agregar_habitacion.php" class="button">Agregar Nueva Habitación</a>
                 <a href="funciones/generar_reporte_habitaciones.php" class="button">Filtrar Habitación por estado</a>
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -65,16 +70,16 @@ oci_execute($stid);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while (($row = oci_fetch_assoc($stid)) !== false): ?>
+                        <?php while (($row = oci_fetch_assoc($cursor)) !== false): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['HABITACIONID'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['NUMEROHABITACION'], ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['TIPOHABITACION'], ENT_QUOTES); ?></td>
-                                <td><?php echo htmlspecialchars($row['PRECIOPORNOCHE'], ENT_QUOTES); ?></td>
+                                <td><?php echo htmlspecialchars(number_format($row['PRECIOPORNOCHE'], 2), ENT_QUOTES); ?></td>
                                 <td><?php echo htmlspecialchars($row['ESTADO'], ENT_QUOTES); ?></td>
                                 <td>
-                                    <a href="editar_habitacion.php?id=<?php echo urlencode($row['HABITACIONID']); ?>">Editar</a> |
-                                    <a href="eliminar_habitacion.php?id=<?php echo urlencode($row['HABITACIONID']); ?>">Eliminar</a>
+                                    <a href="editar_habitacion.php?id=<?php echo urlencode($row['HABITACIONID']); ?>" class="btn btn-sm" style="background-color: #013e6a; color: white;">Editar</a>
+                                    <a href="eliminar_habitacion.php?id=<?php echo urlencode($row['HABITACIONID']); ?>" class="btn btn-sm" style="background-color: #013e6a; color: white;" onclick="return confirm('¿Estás seguro de que deseas eliminar esta habitación?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -93,6 +98,7 @@ oci_execute($stid);
 
     <?php 
     oci_free_statement($stid);
+    oci_free_statement($cursor);
     oci_close($conn); 
     ?>
 </body>
