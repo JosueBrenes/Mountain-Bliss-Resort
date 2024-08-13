@@ -421,6 +421,118 @@ NOCYCLE;
 
 --PROCEDIMIENTOS
 
+-- OBTENER RESERVAS
+CREATE OR REPLACE PROCEDURE obtener_reservas (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Reservas;
+END obtener_reservas;
+/
+ 
+--------------------------------------------------------------------------------
+ 
+-- OBTENER SERVICIOS
+CREATE OR REPLACE PROCEDURE obtener_servicios (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Servicios;
+END obtener_servicios;
+/
+ 
+--------------------------------------------------------------------------------
+ 
+-- OBTENER FACTURAS
+CREATE OR REPLACE PROCEDURE obtener_facturas (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Facturacion;
+END obtener_facturas;
+/
+ 
+--------------------------------------------------------------------------------
+ 
+-- OBTENER INVENTARIOS
+CREATE OR REPLACE PROCEDURE obtener_inventarios (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Inventarios;
+END obtener_inventarios;
+/
+ 
+--------------------------------------------------------------------------------
+ 
+-- OBTENER MANTENIMIENTO
+CREATE OR REPLACE PROCEDURE obtener_mantenimiento (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Mantenimiento;
+END obtener_mantenimiento;
+/
+ 
+--------------------------------------------------------------------------------
+ 
+--OBTENER HUESPUEDES
+CREATE OR REPLACE PROCEDURE obtener_huespedes (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM huespedes;
+END obtener_huespedes;
+/
+--------------------------------------------------------------------------------
+-- OBTENER EMPLEADOS
+CREATE OR REPLACE PROCEDURE obtener_empleados (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM empleados;
+END obtener_empleados;
+/
+--------------------------------------------------------------------------------
+ 
+-- OBTENER HABITACIONES
+CREATE OR REPLACE PROCEDURE obtener_habitaciones (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM habitaciones;
+END obtener_habitaciones;
+/
+--------------------------------------------------------------------------------
+ 
+CREATE OR REPLACE PROCEDURE obtener_proveedores (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM PROVEEDORES;
+END obtener_proveedores;
+/
+
+--------------------------------------------------------------------------------
+-- CRUD INSERTAR
 
 CREATE OR REPLACE PROCEDURE INSERTAR_HUESPED (
   P_HUESPEDID NUMBER,
