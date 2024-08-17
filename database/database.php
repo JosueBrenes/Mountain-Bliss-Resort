@@ -1,8 +1,8 @@
 <?php
 // Datos de conexión
-$username = 'admin';
-$password = 'admin';
-$dbname = 'Mountain-Bliss-Resort'; 
+$username = 'LB_User';
+$password = 'LB_User';
+$dbname = 'Mountain-Bliss-Resortt'; 
 $hostname = 'localhost:1521/orcl';
 
 // Establecer la conexión

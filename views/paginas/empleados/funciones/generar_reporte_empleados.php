@@ -2,26 +2,16 @@
 // Incluir archivo de conexión a la base de datos
 include '../../../../database/database.php';
 
-// Variable para almacenar los empleados y los puestos
+// Variable para almacenar los empleados
 $empleados = [];
-$puestos = [];
-
-// Consultar los puestos únicos en la base de datos
-$query_puestos = 'SELECT DISTINCT Puesto FROM Empleados ORDER BY Puesto';
-$stid_puestos = oci_parse($conn, $query_puestos);
-oci_execute($stid_puestos);
-
-while ($row = oci_fetch_assoc($stid_puestos)) {
-    $puestos[] = $row['PUESTO'];
-}
 
 // Verificar si se ha enviado una solicitud para obtener la lista de empleados
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['puesto'])) {
     // Obtener el puesto del formulario
     $puesto = $_POST['puesto'];
 
-    // Preparar la consulta para llamar a la función
-    $query = 'BEGIN :cursor := LISTA_EMPLEADOS_CON_PUESTO(:puesto); END;';
+    // Preparar la consulta para llamar al procedimiento
+    $query = 'BEGIN obtener_empleados_fn(:puesto, :cursor); END;';
     $stid = oci_parse($conn, $query);
 
     // Crear un cursor para el resultado
@@ -52,9 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['puesto'])) {
     oci_free_statement($stid);
     oci_free_statement($cursor);
 }
-
-// Liberar el recurso del cursor de puestos
-oci_free_statement($stid_puestos);
 
 // Cerrar la conexión
 oci_close($conn);
@@ -104,14 +91,7 @@ oci_close($conn);
                         <form method="POST" action="" class="mb-4">
                             <div class="form-group">
                                 <label for="puesto">Puesto:</label>
-                                <select id="puesto" name="puesto" class="form-control" required>
-                                    <option value="" disabled selected>Seleccionar un puesto</option>
-                                    <?php foreach ($puestos as $puesto): ?>
-                                        <option value="<?php echo htmlspecialchars($puesto, ENT_QUOTES); ?>">
-                                            <?php echo htmlspecialchars($puesto, ENT_QUOTES); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <input type="text" id="puesto" name="puesto" class="form-control" required>
                             </div>
                             <button type="submit" class="button">Generar Reporte</button>
                         </form>

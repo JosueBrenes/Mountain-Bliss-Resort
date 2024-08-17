@@ -11,11 +11,21 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $reserva_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Reservas WHERE ReservaID = :reserva_id';
+// Preparar y ejecutar el procedimiento almacenado
+$sql = 'BEGIN obtener_reservas(:cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':reserva_id', $reserva_id);
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$reserva = oci_fetch_assoc($stid);
+oci_execute($cursor);
+
+$reserva = null;
+while (($row = oci_fetch_assoc($cursor)) !== false) {
+    if ($row['RESERVAID'] == $reserva_id) {
+        $reserva = $row;
+        break;
+    }
+}
 
 if (!$reserva) {
     die("No se encontró la reserva.");
@@ -26,6 +36,7 @@ $fecha_entrada = date('Y-m-d', strtotime($reserva['FECHAENTRADA']));
 $fecha_salida = date('Y-m-d', strtotime($reserva['FECHASALIDA']));
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

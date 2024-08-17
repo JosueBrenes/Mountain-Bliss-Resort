@@ -1,3 +1,4 @@
+
 CREATE TABLE Huespedes (
     HuespedID NUMBER PRIMARY KEY,
     Nombre VARCHAR2(100) NOT NULL,
@@ -8,7 +9,6 @@ CREATE TABLE Huespedes (
     Email VARCHAR2(100)
 );
 
-
 CREATE TABLE Empleados (
     EmpleadoID NUMBER PRIMARY KEY,
     Nombre VARCHAR2(100) NOT NULL,
@@ -17,6 +17,29 @@ CREATE TABLE Empleados (
     FechaContratacion DATE,
     Salario NUMBER(10, 2)
 );
+
+CREATE TABLE Servicios (
+    ServicioID NUMBER PRIMARY KEY,
+    NombreServicio VARCHAR2(100) NOT NULL,
+    Descripcion VARCHAR2(255),
+    Precio NUMBER(10, 2)
+);
+
+CREATE TABLE Inventarios (
+    InventarioID NUMBER PRIMARY KEY,
+    NombreProducto VARCHAR2(100) NOT NULL,
+    CantidadTotal NUMBER NOT NULL,
+    UnidadMedida VARCHAR2(50)
+);
+
+CREATE TABLE Proveedores (
+    ProveedorID NUMBER PRIMARY KEY,
+    Nombre VARCHAR2(100) NOT NULL,
+    Direccion VARCHAR2(255),
+    Telefono VARCHAR2(20),
+    Email VARCHAR2(100)
+);
+
 
 CREATE TABLE Habitaciones (
     HabitacionID NUMBER PRIMARY KEY,
@@ -35,26 +58,11 @@ CREATE TABLE Reservas (
     Estado VARCHAR2(50) CHECK (Estado IN ('Pendiente', 'Confirmada', 'Cancelada'))
 );
 
-CREATE TABLE Servicios (
-    ServicioID NUMBER PRIMARY KEY,
-    NombreServicio VARCHAR2(100) NOT NULL,
-    Descripcion VARCHAR2(255),
-    Precio NUMBER(10, 2)
-);
-
-
 CREATE TABLE Facturacion (
     FacturaID NUMBER PRIMARY KEY,
     ReservaID NUMBER REFERENCES Reservas(ReservaID),
     FechaFactura DATE NOT NULL,
     Total NUMBER(10, 2) NOT NULL
-);
-
-CREATE TABLE Inventarios (
-    InventarioID NUMBER PRIMARY KEY,
-    NombreProducto VARCHAR2(100) NOT NULL,
-    CantidadTotal NUMBER NOT NULL,
-    UnidadMedida VARCHAR2(50)
 );
 
 CREATE TABLE CantidadInventarioPorHabitacion (
@@ -70,14 +78,6 @@ CREATE TABLE Mantenimiento (
     FechaMantenimiento DATE NOT NULL,
     Descripcion VARCHAR2(255),
     Costo NUMBER(10, 2)
-);
-
-CREATE TABLE Proveedores (
-    ProveedorID NUMBER PRIMARY KEY,
-    Nombre VARCHAR2(100) NOT NULL,
-    Direccion VARCHAR2(255),
-    Telefono VARCHAR2(20),
-    Email VARCHAR2(100)
 );
 
 --INSERTS
@@ -202,6 +202,72 @@ INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES
 INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (9, 'Proveedores GHI', '606 Proveedor St', '9012345678', 'contacto@proveedoresghi.com');
 INSERT INTO Proveedores (ProveedorID, Nombre, Direccion, Telefono, Email) VALUES (10, 'Suministros JKL', '707 Suministro Ave', '0123456789', 'ventas@suministrosjkl.com');
 
+----------------------------------------------------------------------------
+-- SECUENCIAS
+
+-- Secuencia para Huespedes
+CREATE SEQUENCE Huesped_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Empleados
+CREATE SEQUENCE Empleado_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Habitaciones
+CREATE SEQUENCE Habitacion_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Reservas
+CREATE SEQUENCE Reserva_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Servicios
+CREATE SEQUENCE Servicio_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Facturacion
+CREATE SEQUENCE Factura_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Inventarios
+CREATE SEQUENCE Inventario_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Mantenimiento
+CREATE SEQUENCE Mantenimiento_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
+-- Secuencia para Proveedores
+CREATE SEQUENCE Proveedor_SEQ
+START WITH 11
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+/
 
 --VISTAS
 CREATE VIEW Vista_Proveedores AS
@@ -352,187 +418,8 @@ JOIN
     Habitaciones HR ON R.HabitacionID = HR.HabitacionID;
 
 
-----------------------------------------------------------------------------
--- SECUENCIAS
-
--- Secuencia para Huespedes
-CREATE SEQUENCE Huesped_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Empleados
-CREATE SEQUENCE Empleado_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Habitaciones
-CREATE SEQUENCE Habitacion_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Reservas
-CREATE SEQUENCE Reserva_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Servicios
-CREATE SEQUENCE Servicio_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Facturacion
-CREATE SEQUENCE Factura_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Inventarios
-CREATE SEQUENCE Inventario_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Mantenimiento
-CREATE SEQUENCE Mantenimiento_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
--- Secuencia para Proveedores
-CREATE SEQUENCE Proveedor_SEQ
-START WITH 1
-INCREMENT BY 1
-NOCACHE
-NOCYCLE;
-/
-
 --PROCEDIMIENTOS
 
--- OBTENER RESERVAS
-CREATE OR REPLACE PROCEDURE obtener_reservas (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM Reservas;
-END obtener_reservas;
-/
- 
---------------------------------------------------------------------------------
- 
--- OBTENER SERVICIOS
-CREATE OR REPLACE PROCEDURE obtener_servicios (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM Servicios;
-END obtener_servicios;
-/
- 
---------------------------------------------------------------------------------
- 
--- OBTENER FACTURAS
-CREATE OR REPLACE PROCEDURE obtener_facturas (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM Facturacion;
-END obtener_facturas;
-/
- 
---------------------------------------------------------------------------------
- 
--- OBTENER INVENTARIOS
-CREATE OR REPLACE PROCEDURE obtener_inventarios (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM Inventarios;
-END obtener_inventarios;
-/
- 
---------------------------------------------------------------------------------
- 
--- OBTENER MANTENIMIENTO
-CREATE OR REPLACE PROCEDURE obtener_mantenimiento (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM Mantenimiento;
-END obtener_mantenimiento;
-/
- 
---------------------------------------------------------------------------------
- 
---OBTENER HUESPUEDES
-CREATE OR REPLACE PROCEDURE obtener_huespedes (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM huespedes;
-END obtener_huespedes;
-/
---------------------------------------------------------------------------------
--- OBTENER EMPLEADOS
-CREATE OR REPLACE PROCEDURE obtener_empleados (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM empleados;
-END obtener_empleados;
-/
---------------------------------------------------------------------------------
- 
--- OBTENER HABITACIONES
-CREATE OR REPLACE PROCEDURE obtener_habitaciones (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM habitaciones;
-END obtener_habitaciones;
-/
---------------------------------------------------------------------------------
- 
-CREATE OR REPLACE PROCEDURE obtener_proveedores (
-    p_cursor OUT SYS_REFCURSOR
-)
-AS
-BEGIN
-    OPEN p_cursor FOR
-    SELECT * FROM PROVEEDORES;
-END obtener_proveedores;
-/
-
---------------------------------------------------------------------------------
--- CRUD INSERTAR
 
 CREATE OR REPLACE PROCEDURE INSERTAR_HUESPED (
   P_HUESPEDID NUMBER,
@@ -887,19 +774,16 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE ELIMINAR_HUESPED(
-    p_huesped_id IN Huespedes.HuespedID%TYPE
-)
-IS
+CREATE OR REPLACE PROCEDURE ELIMINAR_HUESPED(p_huesped_id NUMBER) IS
 BEGIN
-    DELETE FROM Huespedes
-    WHERE HuespedID = p_huesped_id;
+    DELETE FROM Facturacion WHERE ReservaID IN (SELECT ReservaID FROM Reservas WHERE HuespedID = p_huesped_id);
 
-    DBMS_OUTPUT.PUT_LINE('Huésped eliminado exitosamente.');
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
-END ELIMINAR_HUESPED;
+    DELETE FROM Reservas WHERE HuespedID = p_huesped_id;
+
+    DELETE FROM Huespedes WHERE HuespedID = p_huesped_id;
+
+    COMMIT;
+END;
 /
 
 CREATE OR REPLACE PROCEDURE ELIMINAR_SERVICIO(
@@ -921,12 +805,18 @@ CREATE OR REPLACE PROCEDURE ELIMINAR_RESERVA (
     p_reservaid IN Reservas.ReservaID%TYPE
 ) AS
 BEGIN
+    DELETE FROM Facturacion
+    WHERE ReservaID = p_reservaid;
+
     DELETE FROM Reservas
     WHERE ReservaID = p_reservaid;
 
-    DBMS_OUTPUT.PUT_LINE('Reserva eliminada exitosamente.');
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Reserva y referencias eliminadas exitosamente.');
 EXCEPTION
     WHEN OTHERS THEN
+        ROLLBACK;
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
 END ELIMINAR_RESERVA;
 /
@@ -935,15 +825,21 @@ CREATE OR REPLACE PROCEDURE ELIMINAR_HABITACION (
     p_habitacionid IN Habitaciones.HabitacionID%TYPE
 ) AS
 BEGIN
-    DELETE FROM Habitaciones
-    WHERE HabitacionID = p_habitacionid;
+    DELETE FROM Reservas WHERE HabitacionID = p_habitacionid;
+    DELETE FROM Mantenimiento WHERE HabitacionID = p_habitacionid;
+
+    DELETE FROM Habitaciones WHERE HabitacionID = p_habitacionid;
 
     DBMS_OUTPUT.PUT_LINE('Habitación eliminada exitosamente.');
+    
+    COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Ha ocurrido un error: ' || SQLERRM);
+        ROLLBACK;
 END ELIMINAR_HABITACION;
 /
+
 CREATE OR REPLACE PROCEDURE ELIMINAR_FACTURA (
     p_facturaid IN Facturacion.FacturaID%TYPE
 ) AS
@@ -1013,8 +909,112 @@ EXCEPTION
 END ELIMINAR_PROVEEDOR;
 /
 
-------------------------------------------------------------------------------
 
+----------------------------------------------------------------------------------
+----PROC DE SELECTS-----
+
+-- OBTENER RESERVAS
+CREATE OR REPLACE PROCEDURE obtener_reservas (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Reservas;
+END obtener_reservas;
+/
+ 
+ 
+-- OBTENER SERVICIOS
+CREATE OR REPLACE PROCEDURE obtener_servicios (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Servicios;
+END obtener_servicios;
+/
+ 
+ 
+-- OBTENER FACTURAS
+CREATE OR REPLACE PROCEDURE obtener_facturas (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Facturacion;
+END obtener_facturas;
+/
+ 
+ 
+-- OBTENER INVENTARIOS
+CREATE OR REPLACE PROCEDURE obtener_inventarios (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Inventarios;
+END obtener_inventarios;
+/
+ 
+ 
+-- OBTENER MANTENIMIENTO
+CREATE OR REPLACE PROCEDURE obtener_mantenimiento (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM Mantenimiento;
+END obtener_mantenimiento;
+/
+ 
+ 
+--OBTENER HUESPUEDES
+CREATE OR REPLACE PROCEDURE obtener_huespedes (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM huespedes;
+END obtener_huespedes;
+/
+-- OBTENER EMPLEADOS
+CREATE OR REPLACE PROCEDURE obtener_empleados (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM empleados;
+END obtener_empleados;
+/
+
+ 
+-- OBTENER HABITACIONES
+CREATE OR REPLACE PROCEDURE obtener_habitaciones (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM habitaciones;
+END obtener_habitaciones;
+/
+ 
+CREATE OR REPLACE PROCEDURE obtener_proveedores (
+    p_cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM PROVEEDORES;
+END obtener_proveedores;
+/
 
 --FUNCIONES-------------
 
@@ -1150,7 +1150,6 @@ BEGIN
     RETURN resultado;
 END;
 /
-
 
 --CURSORES
 CREATE OR REPLACE PROCEDURE CURSOR_HUESPEDES (
@@ -1510,93 +1509,9 @@ EXCEPTION
 END CURSOR_FACTURAS_TOTAL;
 /
 
------------------------------------------------------------------------------------------------------
-------TRIGGERS-----
-
---evita reservar alguna habitacion ocupada
-CREATE OR REPLACE TRIGGER trg_hab_ocupada
-BEFORE INSERT ON Reservas
-FOR EACH ROW
-DECLARE
-    v_estado VARCHAR2(50);
-BEGIN
-    SELECT Estado INTO v_estado
-    FROM Habitaciones
-    WHERE HabitacionID = :NEW.HabitacionID;
-
-    IF v_estado IN ('Mantenimiento', 'Ocupada') THEN
-        RAISE_APPLICATION_ERROR(-20001, 'No se puede hacer una reserva para una habitación en mantenimiento o ya ocupada.');
-    END IF;
-END;
-/
-
---cambia estado de la reservacion a 'ocupada'
-CREATE OR REPLACE TRIGGER trg_act_estado
-AFTER UPDATE OF Estado ON Reservas
-FOR EACH ROW
-WHEN (NEW.Estado = 'Confirmada')
-BEGIN
-    UPDATE Habitaciones
-    SET Estado = 'Ocupada'
-    WHERE HabitacionID = :NEW.HabitacionID;
-END;
-/
-
---no se puede eliminar empleado con alguna reserva activa
-CREATE OR REPLACE TRIGGER trg_elim_emp_reserva
-BEFORE DELETE ON Empleados
-FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    SELECT COUNT(*)
-    INTO v_count
-    FROM Reservas r
-    JOIN Habitaciones h ON r.HabitacionID = h.HabitacionID
-    WHERE h.NumeroHabitacion = :OLD.EmpleadoID
-      AND r.Estado IN ('Pendiente', 'Confirmada');
-
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20002, 'No se puede eliminar un empleado con reservas activas.');
-    END IF;
-END;
-/
 
 
---mantiene el inv actualizado
-CREATE OR REPLACE TRIGGER trg_act_inv
-AFTER INSERT ON CantidadInventarioPorHabitacion
-FOR EACH ROW
-BEGIN
-    UPDATE Inventarios
-    SET CantidadTotal = CantidadTotal - :NEW.Cantidad
-    WHERE InventarioID = :NEW.InventarioID;
-END;
-/
 
-CREATE SEQUENCE SEQ_FACTURACION
-START WITH 1
-INCREMENT BY 1
-NOCACHE;
-
-
---fecha y el total para la factura
-CREATE OR REPLACE TRIGGER trg_fact
-AFTER UPDATE OF Estado ON Reservas
-FOR EACH ROW
-WHEN (NEW.Estado = 'Confirmada')
-BEGIN
-    INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
-    VALUES (
-        SEQ_FACTURACION.NEXTVAL, 
-        :NEW.ReservaID, 
-        SYSDATE, 
-        (SELECT PrecioPorNoche * (:NEW.FechaSalida - :NEW.FechaEntrada)
-         FROM Habitaciones
-         WHERE HabitacionID = :NEW.HabitacionID)
-    );
-END;
-/
 
 ---------------------------------------------------------------------------------
 --PAQUETES--
@@ -2136,3 +2051,91 @@ END CANTIDAD_INVENTARIO_HABITACION_MAN;
 /
 
 -----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------
+------TRIGGERS-----
+
+--evita reservar alguna habitacion ocupada
+CREATE OR REPLACE TRIGGER trg_hab_ocupada
+BEFORE INSERT ON Reservas
+FOR EACH ROW
+DECLARE
+    v_estado VARCHAR2(50);
+BEGIN
+    SELECT Estado INTO v_estado
+    FROM Habitaciones
+    WHERE HabitacionID = :NEW.HabitacionID;
+
+    IF v_estado IN ('Mantenimiento', 'Ocupada') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'No se puede hacer una reserva para una habitación en mantenimiento o ya ocupada.');
+    END IF;
+END;
+/
+
+--cambia estado de la reservacion a 'ocupada'
+CREATE OR REPLACE TRIGGER trg_act_estado
+AFTER UPDATE OF Estado ON Reservas
+FOR EACH ROW
+WHEN (NEW.Estado = 'Confirmada')
+BEGIN
+    UPDATE Habitaciones
+    SET Estado = 'Ocupada'
+    WHERE HabitacionID = :NEW.HabitacionID;
+END;
+/
+
+--no se puede eliminar empleado con alguna reserva activa
+CREATE OR REPLACE TRIGGER trg_elim_emp_reserva
+BEFORE DELETE ON Empleados
+FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM Reservas r
+    JOIN Habitaciones h ON r.HabitacionID = h.HabitacionID
+    WHERE h.NumeroHabitacion = :OLD.EmpleadoID
+      AND r.Estado IN ('Pendiente', 'Confirmada');
+
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'No se puede eliminar un empleado con reservas activas.');
+    END IF;
+END;
+/
+
+
+--mantiene el inv actualizado
+CREATE OR REPLACE TRIGGER trg_act_inv
+AFTER INSERT ON CantidadInventarioPorHabitacion
+FOR EACH ROW
+BEGIN
+    UPDATE Inventarios
+    SET CantidadTotal = CantidadTotal - :NEW.Cantidad
+    WHERE InventarioID = :NEW.InventarioID;
+END;
+/
+
+CREATE SEQUENCE SEQ_FACTURACION
+START WITH 1
+INCREMENT BY 1
+NOCACHE;
+
+
+--fecha y el total para la factura
+CREATE OR REPLACE TRIGGER trg_fact
+AFTER UPDATE OF Estado ON Reservas
+FOR EACH ROW
+WHEN (NEW.Estado = 'Confirmada')
+BEGIN
+    INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
+    VALUES (
+        SEQ_FACTURACION.NEXTVAL, 
+        :NEW.ReservaID, 
+        SYSDATE, 
+        (SELECT PrecioPorNoche * (:NEW.FechaSalida - :NEW.FechaEntrada)
+         FROM Habitaciones
+         WHERE HabitacionID = :NEW.HabitacionID)
+    );
+END;
+/

@@ -11,17 +11,31 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $proveedor_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Proveedores WHERE ProveedorID = :proveedor_id';
+// Preparar el cursor para el procedimiento almacenado
+$sql = 'BEGIN obtener_proveedores(:p_cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':proveedor_id', $proveedor_id);
+
+// Crear un cursor
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$proveedor = oci_fetch_assoc($stid);
+
+// Ejecutar el cursor para obtener los datos
+oci_execute($cursor);
+$proveedor = null;
+while ($row = oci_fetch_assoc($cursor)) {
+    if ($row['PROVEEDORID'] == $proveedor_id) {
+        $proveedor = $row;
+        break;
+    }
+}
 
 if (!$proveedor) {
     die("No se encontró el proveedor.");
 }
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

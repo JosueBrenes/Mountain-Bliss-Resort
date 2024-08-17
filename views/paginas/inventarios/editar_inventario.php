@@ -11,17 +11,31 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $inventario_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Inventarios WHERE InventarioID = :inventario_id';
+// Preparar el cursor
+$sql = 'BEGIN obtener_inventarios(:p_cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':inventario_id', $inventario_id);
-oci_execute($stid);
-$inventario = oci_fetch_assoc($stid);
 
-if (!$inventario) {
+// Crear un cursor
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
+oci_execute($stid);
+
+// Ejecutar el cursor para obtener los datos
+oci_execute($cursor);
+$inventarios = [];
+while ($row = oci_fetch_assoc($cursor)) {
+    if ($row['INVENTARIOID'] == $inventario_id) {
+        $inventario = $row;
+        break;
+    }
+}
+
+if (!isset($inventario)) {
     die("No se encontró el inventario.");
 }
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

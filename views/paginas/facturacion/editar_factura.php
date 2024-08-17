@@ -11,11 +11,22 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $factura_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Facturacion WHERE FacturaID = :factura_id';
+// Llamar al procedimiento almacenado
+$sql = 'BEGIN obtener_facturas(:p_cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':factura_id', $factura_id);
+
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$factura = oci_fetch_assoc($stid);
+oci_execute($cursor);
+
+$factura = null;
+while (($row = oci_fetch_assoc($cursor)) !== false) {
+    if ($row['FACTURAID'] == $factura_id) {
+        $factura = $row;
+        break;
+    }
+}
 
 if (!$factura) {
     die("No se encontró la factura.");
@@ -24,6 +35,7 @@ if (!$factura) {
 $fecha_factura = date('Y-m-d', strtotime($factura['FECHAFACTURA']));
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

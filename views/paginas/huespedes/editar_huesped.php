@@ -11,11 +11,22 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $huesped_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Huespedes WHERE HuespedID = :huesped_id';
+// Llamar al procedimiento almacenado
+$sql = 'BEGIN obtener_huespedes(:p_cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':huesped_id', $huesped_id);
+
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$huesped = oci_fetch_assoc($stid);
+oci_execute($cursor);
+
+$huesped = null;
+while (($row = oci_fetch_assoc($cursor)) !== false) {
+    if ($row['HUESPEDID'] == $huesped_id) {
+        $huesped = $row;
+        break;
+    }
+}
 
 if (!$huesped) {
     die("No se encontró el huésped.");
@@ -24,6 +35,7 @@ if (!$huesped) {
 $fecha_nacimiento = $huesped['FECHANACIMIENTO'] ? date('Y-m-d', strtotime($huesped['FECHANACIMIENTO'])) : '';
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

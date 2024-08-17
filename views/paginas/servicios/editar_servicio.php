@@ -11,17 +11,28 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $servicio_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Servicios WHERE ServicioID = :servicio_id';
+// Llamar al procedimiento almacenado
+$cursor = oci_new_cursor($conn);
+$sql = 'BEGIN obtener_servicios(:cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':servicio_id', $servicio_id);
+oci_bind_by_name($stid, ':cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$servicio = oci_fetch_assoc($stid);
+
+oci_execute($cursor);
+$servicio = null;
+while (($row = oci_fetch_assoc($cursor)) != false) {
+    if ($row['SERVICIOID'] == $servicio_id) {
+        $servicio = $row;
+        break;
+    }
+}
 
 if (!$servicio) {
     die("No se encontró el servicio.");
 }
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

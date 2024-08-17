@@ -11,11 +11,24 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $mantenimiento_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Mantenimiento WHERE MantenimientoID = :mantenimiento_id';
+// Preparar el cursor
+$sql = 'BEGIN obtener_mantenimiento(:p_cursor); END;';
 $stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':mantenimiento_id', $mantenimiento_id);
+
+// Crear un cursor
+$cursor = oci_new_cursor($conn);
+oci_bind_by_name($stid, ':p_cursor', $cursor, -1, OCI_B_CURSOR);
 oci_execute($stid);
-$mantenimiento = oci_fetch_assoc($stid);
+
+// Ejecutar el cursor para obtener los datos
+oci_execute($cursor);
+$mantenimiento = null;
+while ($row = oci_fetch_assoc($cursor)) {
+    if ($row['MANTENIMIENTOID'] == $mantenimiento_id) {
+        $mantenimiento = $row;
+        break;
+    }
+}
 
 if (!$mantenimiento) {
     die("No se encontró el mantenimiento.");
@@ -24,6 +37,7 @@ if (!$mantenimiento) {
 $fecha_mantenimiento = date('Y-m-d', strtotime($mantenimiento['FECHAMANTENIMIENTO']));
 
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 

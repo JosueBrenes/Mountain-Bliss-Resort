@@ -11,19 +11,48 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $empleado_id = $_GET['id'];
 
-$sql = 'SELECT * FROM Empleados WHERE EmpleadoID = :empleado_id';
-$stid = oci_parse($conn, $sql);
-oci_bind_by_name($stid, ':empleado_id', $empleado_id);
-oci_execute($stid);
-$empleado = oci_fetch_assoc($stid);
+// Preparar la llamada al procedimiento almacenado
+$query = 'BEGIN obtener_empleados(:cursor); END;';
+$stid = oci_parse($conn, $query);
 
+// Crear un cursor para el resultado
+$cursor = oci_new_cursor($conn);
+
+// Bind variables
+oci_bind_by_name($stid, ':cursor', $cursor, -1, OCI_B_CURSOR);
+
+// Ejecutar la consulta
+if (!oci_execute($stid)) {
+    $e = oci_error($stid);
+    die("Error en la ejecución de la consulta: " . htmlentities($e['message'], ENT_QUOTES));
+}
+
+// Ejecutar el cursor
+if (!oci_execute($cursor)) {
+    $e = oci_error($cursor);
+    die("Error en la ejecución del cursor: " . htmlentities($e['message'], ENT_QUOTES));
+}
+
+// Buscar el empleado con el ID proporcionado
+$empleado = null;
+while (($row = oci_fetch_assoc($cursor)) !== false) {
+    if ($row['EMPLEADOID'] == $empleado_id) {
+        $empleado = $row;
+        break;
+    }
+}
+
+// Verificar si se encontró el empleado
 if (!$empleado) {
     die("No se encontró el empleado.");
 }
 
+// Formatear la fecha de contratación
 $fecha_contratacion = $empleado['FECHACONTRATACION'] ? date('Y-m-d', strtotime($empleado['FECHACONTRATACION'])) : '';
 
+// Liberar los recursos
 oci_free_statement($stid);
+oci_free_statement($cursor);
 oci_close($conn);
 ?>
 
@@ -35,8 +64,8 @@ oci_close($conn);
     <title>Editar Empleado - Mountain-Bliss-Resort</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../../../public/build/css/styles.css" />
-    <link rel="icon" href="../public/build/img/icon.png" type="image/x-icon" />
-    <link rel="shortcut icon" href="../public/build/img/icon.png" type="image/x-icon" />
+    <link rel="icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../../../public/build/img/icon.png" type="image/x-icon" />
 </head>
 <body>
     <!-- Sidebar -->
