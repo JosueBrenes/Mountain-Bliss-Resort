@@ -1510,6 +1510,94 @@ EXCEPTION
 END CURSOR_FACTURAS_TOTAL;
 /
 
+-----------------------------------------------------------------------------------------------------
+------TRIGGERS-----
+
+--evita reservar alguna habitacion ocupada
+CREATE OR REPLACE TRIGGER trg_hab_ocupada
+BEFORE INSERT ON Reservas
+FOR EACH ROW
+DECLARE
+    v_estado VARCHAR2(50);
+BEGIN
+    SELECT Estado INTO v_estado
+    FROM Habitaciones
+    WHERE HabitacionID = :NEW.HabitacionID;
+
+    IF v_estado IN ('Mantenimiento', 'Ocupada') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'No se puede hacer una reserva para una habitación en mantenimiento o ya ocupada.');
+    END IF;
+END;
+/
+
+--cambia estado de la reservacion a 'ocupada'
+CREATE OR REPLACE TRIGGER trg_act_estado
+AFTER UPDATE OF Estado ON Reservas
+FOR EACH ROW
+WHEN (NEW.Estado = 'Confirmada')
+BEGIN
+    UPDATE Habitaciones
+    SET Estado = 'Ocupada'
+    WHERE HabitacionID = :NEW.HabitacionID;
+END;
+/
+
+--no se puede eliminar empleado con alguna reserva activa
+CREATE OR REPLACE TRIGGER trg_elim_emp_reserva
+BEFORE DELETE ON Empleados
+FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM Reservas r
+    JOIN Habitaciones h ON r.HabitacionID = h.HabitacionID
+    WHERE h.NumeroHabitacion = :OLD.EmpleadoID
+      AND r.Estado IN ('Pendiente', 'Confirmada');
+
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'No se puede eliminar un empleado con reservas activas.');
+    END IF;
+END;
+/
+
+
+--mantiene el inv actualizado
+CREATE OR REPLACE TRIGGER trg_act_inv
+AFTER INSERT ON CantidadInventarioPorHabitacion
+FOR EACH ROW
+BEGIN
+    UPDATE Inventarios
+    SET CantidadTotal = CantidadTotal - :NEW.Cantidad
+    WHERE InventarioID = :NEW.InventarioID;
+END;
+/
+
+CREATE SEQUENCE SEQ_FACTURACION
+START WITH 1
+INCREMENT BY 1
+NOCACHE;
+
+
+--fecha y el total para la factura
+CREATE OR REPLACE TRIGGER trg_fact
+AFTER UPDATE OF Estado ON Reservas
+FOR EACH ROW
+WHEN (NEW.Estado = 'Confirmada')
+BEGIN
+    INSERT INTO Facturacion (FacturaID, ReservaID, FechaFactura, Total)
+    VALUES (
+        SEQ_FACTURACION.NEXTVAL, 
+        :NEW.ReservaID, 
+        SYSDATE, 
+        (SELECT PrecioPorNoche * (:NEW.FechaSalida - :NEW.FechaEntrada)
+         FROM Habitaciones
+         WHERE HabitacionID = :NEW.HabitacionID)
+    );
+END;
+/
+
 ---------------------------------------------------------------------------------
 --PAQUETES--
 
